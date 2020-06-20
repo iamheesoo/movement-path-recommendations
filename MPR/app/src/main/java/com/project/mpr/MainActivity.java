@@ -26,9 +26,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap =googleMap;
-        LatLng park = new LatLng(37.551091, 126.991376);
+        LatLng school = new LatLng(36.362978, 127.344807); //충남대학교 정문
 
-        gMap.moveCamera(CameraUpdateFactory.newLatLng(park));
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(school));
         gMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
     }

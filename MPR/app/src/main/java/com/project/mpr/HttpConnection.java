@@ -6,9 +6,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class GetAltitude {
+public class HttpConnection {
     String MY_API="AIzaSyDbtoRX-sfO3iCcIdxyApzYFTa2oCU9gcI";
-    public String httpConnection(Double lat, Double lng) {
+    public String getAltitudeURL(double lat, double lng){
+        return "https://maps.googleapis.com/maps/api/elevation/json?locations="+lat+ ","+lng+"&key="+MY_API;
+    }
+    public String getDirectionURL(double originLat, double originLng, double destLat, double destLng){
+        return "https://maps.googleapis.com/maps/api/directions/json?origin="+originLat+","+originLng+
+                "&destination="+destLat+","+destLng+"&mode=transit&departure_time=now&key="+MY_API+"&alternatives=true";
+    }
+    public String httpConnection(String u) {
         URL url = null;
         HttpURLConnection conn = null;
         String jsonData = "";
@@ -17,7 +24,7 @@ public class GetAltitude {
         String returnText = "";
 
         try {
-            url = new URL("https://maps.googleapis.com/maps/api/elevation/json?locations=" + lat + "," + lng + "&key=" + MY_API);
+            url = new URL(u);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Accept", "application/json");
             conn.setRequestMethod("GET");

@@ -53,14 +53,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // 마커(핀) 추가
                 gMap.addMarker(mOptions);
                 Log.d("LOG", "위도 : " + latitude+",경도 : " + longitude);
-//                getAlt.getAltitude(latitude,longitude);
 
                 // 고도 받아오기
-                final GetAltitude getAltitude=new GetAltitude();
+                final GetAltitude g=new GetAltitude();
                 new Thread(){
                     public void run(){
-                        String result=getAltitude.httpConnection(latitude, longitude);
-                        Log.d("NET", result);
+                        g.getAltitude(latitude, longitude);
                     }
                 }.start();
             }

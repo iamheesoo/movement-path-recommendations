@@ -1,13 +1,16 @@
 package com.project.mpr;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class HttpConnection {
+public class HttpConnect {
     String MY_API="AIzaSyDbtoRX-sfO3iCcIdxyApzYFTa2oCU9gcI";
+
     public String getAltitudeURL(double lat, double lng){
         return "https://maps.googleapis.com/maps/api/elevation/json?locations="+lat+ ","+lng+"&key="+MY_API;
     }
@@ -39,6 +42,7 @@ public class HttpConnection {
             }
 
             returnText = sb.toString();
+            Log.d("LOG", returnText);
 
         } catch (IOException e) {
             e.printStackTrace();

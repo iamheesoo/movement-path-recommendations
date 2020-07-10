@@ -2,6 +2,8 @@ package com.project.mpr;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,9 +16,9 @@ public class GetAltitude {
     private JSONArray jsonArray;
 
     //고도 리턴
-    public double getAltitude(double lat, double lng){
+    public double getAltitude(LatLng point){
         HttpConnect h=new HttpConnect();
-        String url=h.getAltitudeURL(lat, lng);
+        String url=h.getAltitudeURL(point);
         String jsonData=h.httpConnection(url);
         return jsonRead(jsonData);
     }

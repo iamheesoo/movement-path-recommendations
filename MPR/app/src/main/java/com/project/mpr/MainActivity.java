@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //핀 찍기
             gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
-                public void onMapClick(LatLng point) {
+                public void onMapClick(final LatLng point) {
                     if(count_marker>=2){
                         Log.d("____TEST____", "두 번 이상 클릭하면 안돼요~"+count_marker);
                     }else{
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         final GetAltitude g=new GetAltitude();
                         new Thread(){
                             public void run(){
-                                g.getAltitude(latitude, longitude);
+                                g.getAltitude(point);
                             }
                         }.start();
                     }

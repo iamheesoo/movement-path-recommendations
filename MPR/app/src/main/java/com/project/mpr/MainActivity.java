@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Background background = new Background();
                     background.execute(point);
                 }
+                //0710 : issue #1 finished
 
             }
         });

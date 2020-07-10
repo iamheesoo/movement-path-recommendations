@@ -33,6 +33,9 @@ public class HttpConnect {
         try {
             url = new URL(u);
             conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(15000);
+            conn.setConnectTimeout(15000);
+            conn.setDoInput(true);
             conn.setRequestProperty("Accept", "application/json");
             conn.setRequestMethod("GET");
             conn.connect();

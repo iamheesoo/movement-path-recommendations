@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 public class GetAltitude {
 
-    private ArrayList<String>altitudeList;
     private JSONArray jsonArray;
 
     //고도 리턴

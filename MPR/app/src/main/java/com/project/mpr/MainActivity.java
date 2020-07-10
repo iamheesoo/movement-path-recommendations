@@ -56,23 +56,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     count_marker++;
                     Log.d("LOG", "위도 : " + latitude+",경도 : " + longitude + ",터치횟수 :" + count_marker);
 
-                    // 고도 받아오기
-                    final GetAltitude g=new GetAltitude();
-                    new Thread(){
-                        public void run(){
-                            g.getAltitude(point);
-                        }
-                    }.start();
+                    //고도 받아오기
+                    Background background = new Background();
+                    background.execute(point);
                 }
 
             }
         });
 
-
-
-
     }
 
-
-    }
+}
 

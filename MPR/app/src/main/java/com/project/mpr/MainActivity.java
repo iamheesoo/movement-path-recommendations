@@ -17,6 +17,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap gMap;
     int count_marker=0;
+    LatLng start, end;
+    private final String TAG="MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +41,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(final LatLng point) {
-                if(count_marker>=2){
+                if(count_marker==0){
+                    start=point;
+                }
+                else if(count_marker==1){
+                    end=point;
+                }
+                else if(count_marker>=2){
                     Log.d("____TEST____", "두 번 이상 클릭하면 안돼요~"+count_marker);
+                    Log.d(TAG, start.latitude+" "+ end.latitude);
                 }else{
                     MarkerOptions mOptions = new MarkerOptions();
                     // 마커 타이틀
@@ -62,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 //0710 : issue #1 finished
 
-                //plz help....
+                //plz help....2
 
             }
         });

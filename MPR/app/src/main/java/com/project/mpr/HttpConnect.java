@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class HttpConnect {
+public class HttpConnect {//google-map : 고도 api, t-map : 도보 경로 api
     String MY_GOOGLE_API="AIzaSyDbtoRX-sfO3iCcIdxyApzYFTa2oCU9gcI";
     String MY_TMAP_API="l7xxa0fc69cead9948e4ae68b19059e7a937";
 

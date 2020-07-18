@@ -95,18 +95,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onMapClick(final LatLng point) {
 
-                if(count_marker==0){
+                if(count_marker==0){//출발지 좌표
                     start=point;
                 }
-                else if(count_marker==1){
+                else if(count_marker==1){//목적지 좌표
                     end=point;
                 }
                 if(count_marker>=2){
                     count_marker++;
                     Log.d("____TEST____", "두 번 이상 클릭하면 안돼요~"+count_marker);
-//                    Log.d(TAG, start.latitude+" "+ end.latitude);
+                    //Log.d(TAG, start.latitude+" "+ end.latitude);
+
+                    //t-map api 호출 : 출발지->도착지 경로 좌표 구함
                     GetNode g=new GetNode();
                     g.getNode(start, end);
+
+                    //중간 좌표 계산하기
+                    CalClosedNodes c = new CalClosedNodes();
+                    LatLng midXY = c.cal_middle_latlng(start,end);
+
+                    //중간 좌표 찍기
+                    MarkerOptions midM = new MarkerOptions();
+                    midM.title("중간 값 좌표");
+                    midM.snippet("위도 : "+midXY.latitude+ "경도 : "+midXY.longitude);
+                    midM.position(midXY);
+                    gMap.addMarker(midM);
+
                 }else{
                     MarkerOptions mOptions = new MarkerOptions();
                     // 마커 타이틀
@@ -129,9 +143,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Background background = new Background();
                     background.execute(point);
                 }
-                //0710 : issue #1 finished
-
-                //plz help....2
 
             }
         });

@@ -103,8 +103,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if(count_marker>=2){
                     count_marker++;
                     Log.d("____TEST____", "두 번 이상 클릭하면 안돼요~"+count_marker);
-                    Log.d(TAG, start.latitude+" "+ end.latitude);
-//                    makeRoad(start, end);
+//                    Log.d(TAG, start.latitude+" "+ end.latitude);
+                    GetNode g=new GetNode();
+                    g.getNode(start, end);
                 }else{
                     MarkerOptions mOptions = new MarkerOptions();
                     // 마커 타이틀

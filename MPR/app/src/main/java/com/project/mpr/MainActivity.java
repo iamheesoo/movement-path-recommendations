@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //중간 좌표 계산하기
                     CalClosedNodes c = new CalClosedNodes();
                     LatLng midXY = c.cal_middle_latlng(start,end);
+                    c.getFirebaseData();//------FIREBASE TEST-------
 
                     //중간 좌표 찍기
                     MarkerOptions midM = new MarkerOptions();

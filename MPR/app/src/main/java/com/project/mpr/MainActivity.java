@@ -22,7 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private GoogleMap gMap;
+    GoogleMap gMap;
     int count_marker = 0;
     LatLng start, end;
     private final String TAG = "MainActivity";
@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
         //xml에서 Button클릭 시 editText값 저장하기
         editText=(EditText)findViewById(R.id.editText);
-
     }
     public void onButtonClick(View v){
         String str=editText.getText().toString();

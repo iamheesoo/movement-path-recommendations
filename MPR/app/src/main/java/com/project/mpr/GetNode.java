@@ -12,21 +12,31 @@ import java.util.ArrayList;
 
 public class GetNode extends Thread{
     private static String TAG="GetNode";
-    ArrayList<LatLng> list=new ArrayList<>();
+    public ArrayList<LatLng> list;
     String jsonData;
     //고도 리턴
     public ArrayList<LatLng> getNode(final LatLng start, final LatLng end) {
         list=new ArrayList<>();
 
-        new Thread() {
+        Thread thread=new Thread() {
             public void run() {
                 HttpConnect h = new HttpConnect();
                 String url = h.getDirectionURL(start, end);
                 jsonData = h.httpConnection(url);
                 jsonRead(jsonData);
                 Log.d(TAG, "Node Size: "+list.size());
+
             }
-        }.start();
+        };
+        thread.start();
+
+        try{
+            thread.join();
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
+        Route r=new Route();
+        r.drawRoute(list);
         return list;
     }
 

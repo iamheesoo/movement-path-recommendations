@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LatLng start, end;
     private final String TAG = "MainActivity";
     private View mLayout;
+    EditText editText;
+    int userTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mLayout=findViewById(R.id.map);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        //xml에서 Button클릭 시 editText값 저장하기
+        editText=(EditText)findViewById(R.id.editText);
+
+    }
+    public void onButtonClick(View v){
+        String str=editText.getText().toString();
+        userTime=Integer.parseInt(str);
+        Log.i(TAG, "userTime "+userTime);
     }
 
     // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.

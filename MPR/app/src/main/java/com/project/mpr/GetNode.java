@@ -31,12 +31,10 @@ public class GetNode extends Thread{
         thread.start();
 
         try{
-            thread.join();
+            thread.join(); // 쓰레드 종료 후 list 리턴
         }catch(InterruptedException e){
             e.printStackTrace();
         }
-        Route r=new Route();
-        r.drawRoute(list);
         return list;
     }
 
@@ -49,12 +47,12 @@ public class GetNode extends Thread{
                 JSONObject jObject=fArray.getJSONObject(i);
                 JSONObject geometry=jObject.getJSONObject("geometry");
                 String type=geometry.getString("type");
-                if(type.equals("Point")) { // Point만 추출
+                if(type.equals("LineString")){
                     String coordinates=geometry.getString("coordinates");
-                    coordinates=coordinates.substring(1, coordinates.length()-1);
+                    coordinates=coordinates.replaceAll("[\\[\\]]", "");// 대괄호 삭제
                     String[] latlng=coordinates.split(",");
-//                    Log.d(TAG, latlng[1]+" "+latlng[0]);
-                    list.add(new LatLng(Double.parseDouble(latlng[1]), Double.parseDouble(latlng[0])));
+                    for(int j=0;j<latlng.length;j+=2)
+                        list.add(new LatLng(Double.parseDouble(latlng[j+1]), Double.parseDouble(latlng[j])));
                 }
             }
 

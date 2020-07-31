@@ -135,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //c.getFirebaseData();//------FIREBASE TEST-------
                     c.cal_five_latlng(2,end);
 
-
                     //중간 좌표 찍기
                     MarkerOptions midM = new MarkerOptions();
                     midM.title("중간 값 좌표");

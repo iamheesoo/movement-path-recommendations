@@ -8,16 +8,16 @@ import java.util.Map;
 
 @IgnoreExtraProperties
 public class FirebaseDB { //firebase node 객체 생성용 클래스
+    Double dist;
     Double latitude;
     Double longtitude;
-    Double dist;
 
     public FirebaseDB(){};//기본생성자
 
-    public FirebaseDB(Double lat, Double lon, Double dist){
+    public FirebaseDB(Double dist, Double lat, Double lon){
+        this.dist = dist;
         this.latitude = lat;
         this.longtitude = lon;
-        this.dist = dist;
     }
 
     public FirebaseDB(Double dist){
@@ -51,9 +51,10 @@ public class FirebaseDB { //firebase node 객체 생성용 클래스
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        //result.put("latitude", latitude);
-        //result.put("longtitude", longtitude);
+
         result.put("dist", dist);
+        result.put("latitude", latitude);
+        result.put("longtitude", longtitude);
 
         return result;
     }

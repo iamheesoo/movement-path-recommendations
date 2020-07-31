@@ -2,6 +2,7 @@ package com.project.mpr;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,7 +18,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -39,12 +44,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
         //xml에서 Button클릭 시 editText값 저장하기
         editText=(EditText)findViewById(R.id.editText);
-
     }
     public void onButtonClick(View v){
         String str=editText.getText().toString();
         userTime=Integer.parseInt(str);
         Log.i(TAG, "userTime "+userTime);
+    }
+    public GoogleMap getMap(){
+        return gMap;
     }
 
     // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
@@ -119,7 +126,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     //t-map api 호출 : 출발지->도착지 경로 좌표 구함
                     GetNode g=new GetNode();
-                    g.getNode(start, end);
+                    ArrayList<LatLng> list=g.getNode(start, end); // 경로 노드 받아오기
+                    drawRoute(list); // 경로 그리기
 
                     //중간 좌표 계산하기
                     CalClosedNodes c = new CalClosedNodes();
@@ -162,6 +170,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
     }
+    public void drawRoute(ArrayList<LatLng> list){ // 맵에 경로 그리기
+        Log.d(TAG,"drawRoute()");
+        for(int i=0;i<list.size()-1;i++){
+            LatLng src=list.get(i);
+            LatLng dest=list.get(i+1);
+            Polyline line=gMap.addPolyline(
+                    new PolylineOptions().add(
+                            new LatLng(src.latitude, src.longitude),
+                            new LatLng(dest.latitude, dest.longitude)
+                    ).width(5).color(Color.BLUE).geodesic(true)
+            );
+        }
 
+    }
 }
 

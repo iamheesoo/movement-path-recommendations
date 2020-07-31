@@ -12,10 +12,10 @@ import java.util.ArrayList;
 
 public class GetNode extends Thread{
     private static String TAG="GetNode";
-    public ArrayList<LatLng> list;
+    public ArrayList<LatLngAlt> list;
     String jsonData;
-    //고도 리턴
-    public ArrayList<LatLng> getNode(final LatLng start, final LatLng end) {
+
+    public ArrayList<LatLngAlt> getNode(final LatLng start, final LatLng end) {
         list=new ArrayList<>();
 
         Thread thread=new Thread() {
@@ -25,20 +25,21 @@ public class GetNode extends Thread{
                 jsonData = h.httpConnection(url);
                 jsonRead(jsonData);
                 Log.d(TAG, "Node Size: "+list.size());
-
             }
         };
         thread.start();
 
         try{
             thread.join(); // 쓰레드 종료 후 list 리턴
+            GetAltitude ga=new GetAltitude(); // 고도 받아오기
+            ga.setAltitude(list);
         }catch(InterruptedException e){
             e.printStackTrace();
         }
         return list;
     }
 
-    public void jsonRead(String json){
+    public void jsonRead(String json){ // 파싱
         try {
             JSONObject jsonObj = new JSONObject(json);
             String features=jsonObj.getString("features");
@@ -52,12 +53,18 @@ public class GetNode extends Thread{
                     coordinates=coordinates.replaceAll("[\\[\\]]", "");// 대괄호 삭제
                     String[] latlng=coordinates.split(",");
                     for(int j=0;j<latlng.length;j+=2)
-                        list.add(new LatLng(Double.parseDouble(latlng[j+1]), Double.parseDouble(latlng[j])));
+                        list.add(new LatLngAlt(Double.parseDouble(latlng[j+1]), Double.parseDouble(latlng[j]), 0));
                 }
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void printNode(ArrayList<LatLngAlt> list){ // 노드들 리스트 값 출력
+        Log.d(TAG, "printNode()");
+        for(LatLngAlt point:list)
+            Log.d(TAG, point.latitude+", "+point.longitude+", "+point.altitude+"\n");
     }
 }

@@ -49,7 +49,7 @@ public class HttpConnect {//google-map : 고도 api, t-map : 도보 경로 api
             }
 
             returnText = sb.toString();
-            Log.d("LOG", returnText);
+//            Log.d("LOG", returnText);
 
         } catch (IOException e) {
             e.printStackTrace();

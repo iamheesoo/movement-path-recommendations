@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     //t-map api 호출 : 출발지->도착지 경로 좌표 구함
                     GetNode g=new GetNode();
-                    ArrayList<LatLng> list=g.getNode(start, end); // 경로 노드 받아오기
+                    ArrayList<LatLngAlt> list=g.getNode(start, end); // 경로 노드 받아오기 (고도 포함)
                     drawRoute(list); // 경로 그리기
 
                     //중간 좌표 계산하기
@@ -159,20 +159,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     count_marker++;
                     Log.d("LOG", "위도 : " + latitude+",경도 : " + longitude + ",터치횟수 :" + count_marker);
 
-                    //고도 받아오기
-                    Background background = new Background();
-                    background.execute(point);
                 }
 
             }
         });
 
     }
-    public void drawRoute(ArrayList<LatLng> list){ // 맵에 경로 그리기
+    public void drawRoute(ArrayList<LatLngAlt> list){ // 맵에 경로 그리기
         Log.d(TAG,"drawRoute()");
         for(int i=0;i<list.size()-1;i++){
-            LatLng src=list.get(i);
-            LatLng dest=list.get(i+1);
+            LatLngAlt src=list.get(i);
+            LatLngAlt dest=list.get(i+1);
             Polyline line=gMap.addPolyline(
                     new PolylineOptions().add(
                             new LatLng(src.latitude, src.longitude),

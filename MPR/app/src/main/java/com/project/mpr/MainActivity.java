@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     CalClosedNodes c = new CalClosedNodes();
                     LatLng midXY = c.cal_middle_latlng(start,end);
                     //c.getFirebaseData();//------FIREBASE TEST-------
-                    c.cal_five_latlng(1,end);
+                    c.cal_five_latlng(2,end);
 
 
                     //중간 좌표 찍기

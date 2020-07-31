@@ -4,11 +4,11 @@ import android.location.Location;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 
-
-import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -96,6 +96,41 @@ public class CalClosedNodes {
             }
         };
         mDatabase.addValueEventListener(postListener);//db 수정 진행
+
+        //firebase 정렬 : 목적지와 인접한 num개의 node 검색
+        orderNodes(num);
+    }
+
+    public void orderNodes(int num){ //num만큼 오름차순으로 정렬
+        final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.orderByChild("dist").limitToFirst(num).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { //오름차순 정렬하여 출력
+                FirebaseDB fdb = snapshot.getValue(FirebaseDB.class);
+                System.out.println("*****"+snapshot.getKey() + " 은 " + fdb.dist + "이다.*****");
+                // -> 여기서 노드 정보(위도, 경도) 저장한 뒤 경유지 추가하는거 연결하기
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
 

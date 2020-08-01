@@ -15,6 +15,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +23,8 @@ import static android.content.ContentValues.TAG;
 
 
 public class CalClosedNodes {
+
+    public static ArrayList<LatLng> nodeList = new ArrayList<>(); //이거...
 
     public void getFirebaseData(){ //db 확인하는 코드 ->DB TEST용
 
@@ -95,42 +98,65 @@ public class CalClosedNodes {
                 Log.e(TAG, "onCancelled: " + error.getMessage());
             }
         };
-        mDatabase.addValueEventListener(postListener);//db 수정 진행
 
-        //firebase 정렬 : 목적지와 인접한 num개의 node 검색
-        orderNodes(num);
+        mDatabase.addValueEventListener(postListener);//db 수정 진행 : firebase에 dist값 채워 넣기
+
+        //firebase 정렬한 값 출력 : 목적지와 인접한 num개의 node 검색
+        orderNodes(num); //->리스트에 저장
+
+        System.out.println("=====???몇개 들어갔니???===== : "+nodeList.size());
+        for(int i =0; i<nodeList.size();i++){
+            System.out.println("마 반복 한번 해보자 마 : "+nodeList.get(i).toString());
+        }
+
     }
 
     public void orderNodes(int num){ //num만큼 오름차순으로 정렬
+        //ArrayList<LatLng>
+        //nodeList = new ArrayList<>();
+        //final LatLng latLng;
         final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.orderByChild("dist").limitToFirst(num).addChildEventListener(new ChildEventListener() {
+        mDatabase.orderByChild("dist").limitToFirst(num).addChildEventListener(new ChildEventListener() { //dist로 오름차순 정렬, 상위 num개만 검색
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { //오름차순 정렬하여 출력
-                FirebaseDB fdb = snapshot.getValue(FirebaseDB.class);
-                System.out.println("*****"+snapshot.getKey() + " 은 " + fdb.dist + "이다.*****");
-                // -> 여기서 노드 정보(위도, 경도) 저장한 뒤 경유지 추가하는거 연결하기
+                GetArrayList(snapshot);
+                //nodeList = GetArrayList(snapshot);
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
             }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
-        });
+
+        }
+        );
+     //return nodeList;
+    }
+
+    public ArrayList<LatLng> GetArrayList(DataSnapshot snapshot){
+        ArrayList<LatLng> list = new ArrayList<>();
+
+        FirebaseDB fdb = snapshot.getValue(FirebaseDB.class);
+        System.out.println("*****"+snapshot.getKey() + " 은 " + fdb.dist + "이다.*****");
+        list.add(new LatLng(fdb.latitude,fdb.longtitude));
+        nodeList.add(new LatLng(fdb.latitude,fdb.longtitude));
+        // -> 여기서 노드 정보(위도, 경도) 저장한 뒤 경유지 추가하는거 연결하기
+        /*for(int i =0; i<list.size();i++){
+            System.out.println("=====위경도!!!!===== : "+list.get(i).toString());
+        }*/
+        //nodeList = list;
+        return list;
     }
 
 

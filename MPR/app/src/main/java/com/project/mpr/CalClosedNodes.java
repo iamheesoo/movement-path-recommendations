@@ -109,7 +109,8 @@ public class CalClosedNodes {
                 FirebaseDB fdb = snapshot.getValue(FirebaseDB.class);
                 System.out.println("*****"+snapshot.getKey() + " 은 " + fdb.dist + "이다.*****");
                 // -> 여기서 노드 정보(위도, 경도) 저장한 뒤 경유지 추가하는거 연결하기
-            }
+
+        }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {

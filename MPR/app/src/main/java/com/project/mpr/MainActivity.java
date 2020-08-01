@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     CalClosedNodes c = new CalClosedNodes();
                     LatLng midXY = c.cal_middle_latlng(start,end);
                     //c.getFirebaseData();//------FIREBASE TEST-------
-                    c.cal_five_latlng(2,end);
+                    c.cal_five_latlng(2,end); // 경유지 개수 2
 
                     //중간 좌표 찍기
                     MarkerOptions midM = new MarkerOptions();
@@ -166,8 +166,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
     }
+
+    ArrayList<Polyline> polylines=new ArrayList<>();
+    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
+    int polyIdx=0;
     public void drawRoute(ArrayList<LatLngAlt> list){ // 맵에 경로 그리기
         Log.d(TAG,"drawRoute()");
+        if(polyIdx>=5) { // 경로 최대 5개 가능
+            Log.d(TAG, "polyLine idx: "+polyIdx);
+            return;
+        }
         for(int i=0;i<list.size()-1;i++){
             LatLngAlt src=list.get(i);
             LatLngAlt dest=list.get(i+1);
@@ -175,10 +183,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     new PolylineOptions().add(
                             new LatLng(src.latitude, src.longitude),
                             new LatLng(dest.latitude, dest.longitude)
-                    ).width(5).color(Color.BLUE).geodesic(true)
+                    ).width(5).color(polyColor[polyIdx]).geodesic(true)
             );
         }
-
+        polyIdx++; // 다음 컬러 사용을 위함
     }
 }
 

@@ -122,7 +122,6 @@ public class CalClosedNodes {
                 GetArrayList(snapshot);
                 //nodeList = GetArrayList(snapshot);
             }
-
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
             }
@@ -137,10 +136,7 @@ public class CalClosedNodes {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-            }
-
-        }
-        );
+            } });
      //return nodeList;
     }
 

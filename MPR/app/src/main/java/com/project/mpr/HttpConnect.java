@@ -1,5 +1,6 @@
 package com.project.mpr;
 
+import android.app.Activity;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -20,8 +21,9 @@ public class HttpConnect {//google-map : 고도 api, t-map : 도보 경로 api
     public String getDirectionURL(LatLng start, LatLng end){
         return "https://apis.openapi.sk.com/tmap/routes/pedestrian?version=1&appKey="+MY_TMAP_API+
                 "&startX="+start.longitude+"&startY="+start.latitude+"&endX="+end.longitude+"&endY="+end.latitude+
-                "&startName=출발지&endName=도착지&reqCoordType:%22WGS84GEO%22&resCoordType:%22WGS84GEO%22";
+                "&startName=출발지&endName=도착지&reqCoordType:%22WGS84GEO%22&resCoordType:%22WGS84GEO%22&passList=";
     }
+
     public String httpConnection(String u) {
         URL url = null;
         HttpURLConnection conn = null;
@@ -49,7 +51,8 @@ public class HttpConnect {//google-map : 고도 api, t-map : 도보 경로 api
             }
 
             returnText = sb.toString();
-//            Log.d("LOG", returnText);
+            Log.d("LOG", u);
+            Log.d("LOG", returnText);
 
         } catch (IOException e) {
             e.printStackTrace();

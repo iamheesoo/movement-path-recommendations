@@ -26,6 +26,7 @@ import static android.content.ContentValues.TAG;
 
 
 public class CalClosedNodes {
+    ArrayList<NodeAndDist> resultList=new ArrayList<>();
 
     public void getFirebaseData(){ //db 확인하는 코드 ->DB TEST용
 
@@ -62,7 +63,7 @@ public class CalClosedNodes {
         return middle_latlng;
     }
 
-    public void cal_five_latlng(LatLng end){//목적지에서 인접한 num개의 좌표 계산
+    public void cal_five_latlng(LatLng end,final LinkedList<LatLng> list){//목적지에서 인접한 num개의 좌표 계산
 
         final HashMap<String, Object> childUpdates = new HashMap<>();
         final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -74,23 +75,37 @@ public class CalClosedNodes {
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(int i=1;i<=snapshot.getChildrenCount();i++){//디비 전체 값 확인
-                    FirebaseDB mpr = snapshot.child("node"+i).getValue(FirebaseDB.class);
-                    destLocation.setLatitude(mpr.getLatitude().doubleValue());
-                    destLocation.setLongitude(mpr.getLongtitude().doubleValue());
-                    Double temp = (double)endLocation.distanceTo(destLocation);
+            public void onDataChange(@NonNull final DataSnapshot snapshot) {
+                final Thread thread=new Thread() {
+                    public void run() {
+                        for(int i=1;i<=snapshot.getChildrenCount();i++){//디비 전체 값 확인
+                            FirebaseDB mpr = snapshot.child("node"+i).getValue(FirebaseDB.class);
+                            destLocation.setLatitude(mpr.getLatitude().doubleValue());
+                            destLocation.setLongitude(mpr.getLongtitude().doubleValue());
+                            Double temp = (double)endLocation.distanceTo(destLocation);
 
-                    //목적지와 노드들 간의 거리 계산후 값 저장
-                    FirebaseDB firebaseDB = new FirebaseDB(temp,mpr.getLatitude().doubleValue(),mpr.getLongtitude().doubleValue());
+                            //목적지와 노드들 간의 거리 계산후 값 저장
+                            FirebaseDB firebaseDB = new FirebaseDB(temp,mpr.getLatitude().doubleValue(),mpr.getLongtitude().doubleValue());
 
-                    Map<String, Object> userValue;
-                    userValue = firebaseDB.toMap();
+                            Map<String, Object> userValue;
+                            userValue = firebaseDB.toMap();
 
-                    //firebase 수정
-                    childUpdates.put("/node" + i, userValue);
-                    mDatabase.updateChildren(childUpdates);
+                            //firebase 수정
+                            childUpdates.put("/node" + i, userValue);
+                            mDatabase.updateChildren(childUpdates);
+                        }
+                    }
+                };
+                thread.start();
+                try{
+                    thread.join(); // 쓰레드 종료 후 list 리턴
+                    Log.d("change firebase", " : 디비에 반영 완료");
+                    orderNodes(2,list);
+
+                }catch(InterruptedException e){
+                    e.printStackTrace();
                 }
+
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -100,7 +115,7 @@ public class CalClosedNodes {
         mDatabase.addValueEventListener(postListener);//db 수정 진행 : firebase에 dist값 채워 넣음
     }
 
-    public LinkedList<LatLng> orderNodes(int num, final LinkedList<LatLng> list){ //num만큼 오름차순으로 정렬
+    public LinkedList<LatLng> orderNodes(final int num, final LinkedList<LatLng> list){ //num만큼 오름차순으로 정렬
         //list.clear();//왜 이거 하면 안돼 왜 왜 왜 왜..?
         /*
         * list 초기화 한 후 add하기
@@ -108,78 +123,69 @@ public class CalClosedNodes {
         * 처음 num개는 이전 노드들 중에서 정렬함 ->
         * 트랜잭션을 쓰던지 다른걸 쓰던지 해서 파이어베이스 업데이트 다 된 다음에 검색되게 하기..
         * */
+        final Thread thread=new Thread() {
+            public void run() {
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                Query numOfNode = mDatabase.orderByChild("dist").limitToFirst(num); //num개 데이터 쿼리로 받아옴
+                numOfNode.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for(DataSnapshot dataSnapshot :snapshot.getChildren()){
+                            FirebaseDB mpr = dataSnapshot.getValue(FirebaseDB.class);
+                            LatLng temp = new LatLng(mpr.latitude,mpr.longtitude);
+                            list.add(temp);
+                            System.out.println("*****리스트 사이즈*****"+list.size());
+                            Log.d("COUNT 값 "+ dataSnapshot.getKey() +"번째", dataSnapshot.toString());
+                        }
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        Query numOfNode = mDatabase.orderByChild("dist").limitToFirst(num); //num개 데이터 쿼리로 받아옴
-        numOfNode.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot :snapshot.getChildren()){
-                    FirebaseDB mpr = dataSnapshot.getValue(FirebaseDB.class);
-                    LatLng temp = new LatLng(mpr.latitude,mpr.longtitude);
-                    list.add(temp);
-                    System.out.println("*****리스트 사이즈*****"+list.size());
-                    Log.d("COUNT 값 "+ dataSnapshot.getKey() +"번째", dataSnapshot.toString());
-
-                }
+                    }
+                });
             }
+        };
+        thread.start();
+        try{
+            thread.join(); // 쓰레드 종료 후 list 리턴
+            Log.d("add List end", ""+list.size());
+            printlinkedList(list);
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
         return list;
     }
 
-
-    /*public void orderNodes(int num){ //num만큼 오름차순으로 정렬
-
-        //ArrayList<LatLng>
-        //nodeList = new ArrayList<>();
-        //final LatLng latLng;
-        final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference numOfNode = (DatabaseReference) mDatabase.orderByChild("dist").limitToFirst(num);
-
-        mDatabase.orderByChild("dist").limitToFirst(num).addChildEventListener(new ChildEventListener() { //dist로 오름차순 정렬, 상위 num개만 검색
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { //오름차순 정렬하여 출력
-                GetArrayList(snapshot);
-            }
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            } });
-    }*/
-
-    public void GetArrayList(DataSnapshot snapshot){
-        //ArrayList<LatLng> list = new ArrayList<>();
-
-        FirebaseDB fdb = snapshot.getValue(FirebaseDB.class);
-        System.out.println("목적지로부터 가까운 거리 - 키 : "+snapshot.getKey() +"/거리 : "+ fdb.dist + "/위도 :"+fdb.latitude+ "/경도 : "+fdb.longtitude);
-        //list.add(new LatLng(fdb.latitude,fdb.longtitude));
-        //nodeList.add(new LatLng(fdb.latitude,fdb.longtitude));
-        //nodeList = list;
-        //return list;
+    public void printList(ArrayList<NodeAndDist> arr){
+        Log.d(TAG, "++printList() : "+arr.size());
+        for(int i=0;i<arr.size();i++) {
+            Log.d(TAG, arr.get(i).node + ", " + arr.get(i).dist + "\n");
+        }
     }
 
-    public void printList(ArrayList<LatLng> arr){
-        System.out.println("@@@@@@@array List size@@@@@: "+arr.size());
-        for(int i =0; i<arr.size();i++){
-            System.out.println("@@@@@@@array List 내용들@@@@@: "+arr.get(i).toString());
+    public void printlinkedList(LinkedList<LatLng> arr){
+        Log.d(TAG, "+list에 제대로 들어감?+ : "+arr.size());
+        for(int i=0;i<arr.size();i++) {
+            Log.d(TAG, arr.toString());
         }
     }
 
 
+    /*
+    * final Thread thread=new Thread() {
+                    public void run() {
+                    }
+                };
+                thread.start();
+                 try{
+                        thread.join(); // 쓰레드 종료 후 list 리턴
+                        Log.d("add List end", ""+resultList.size());
+
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }*/
+
+
 }
+

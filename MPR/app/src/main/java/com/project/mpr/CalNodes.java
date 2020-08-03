@@ -15,9 +15,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static android.content.ContentValues.TAG;
 
 public class CalNodes {
+    private static final String TAG="CalNodes";
     ArrayList<NodeAndDist> resultList = new ArrayList<>();//결과를 저장할 리스트
     ArrayList<LatLng> solutionList = new ArrayList<>();
 
@@ -69,6 +69,7 @@ public class CalNodes {
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull final DataSnapshot snapshot) {
+                Log.i(TAG, "onDataChange()");
                 final Thread thread=new Thread() {
                     public void run() {
                         for(int i=0; i<num;i++){

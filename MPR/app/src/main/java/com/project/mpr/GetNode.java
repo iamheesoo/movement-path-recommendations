@@ -19,7 +19,7 @@ public class GetNode extends Thread{
     String jsonData;
     String passList;
 
-    ArrayList<LatLng> nodeList=new ArrayList<>();
+    ArrayList<LatLng> nodeList;
 
     public ArrayList<ArrayList<LatLngAlt>> getNode(final LatLng start, final LatLng end) {
         /**
@@ -33,10 +33,18 @@ public class GetNode extends Thread{
          * v 리턴 경로가 없는 경우 (FileNotFoundException)
          * 원래 최단경로도 보여주면 좋을 듯
          */
+//        CalNodes getnode = new CalNodes(); // 경유지 가져오기
+//        nodeList=getnode.calDist(2,end);
+
         combList=getCombList(2); // num 수정
         resultList=new ArrayList<>();
+
+        // temp
+        nodeList=new ArrayList<>();
         nodeList.add(new LatLng(36.368880, 127.341553)); // 인문대학 위 교차로
         nodeList.add(new LatLng(36.369278, 127.345920)); // 중앙도서관 앞 교차로
+        Log.i(TAG, nodeList.size()+"");
+
         Thread thread=new Thread() {
                 public void run() {
                 HttpConnect h = new HttpConnect();
@@ -84,11 +92,11 @@ public class GetNode extends Thread{
                     JSONObject properties=jObject.getJSONObject("properties");
                     totalTime=properties.getInt("totalTime");
                     Log.i(TAG, "totalTime: "+totalTime);
-                    Log.i(TAG, ""+MainActivity.userTime);
-                    if(totalTime>MainActivity.userTime){ // userTime보다 크면 경로에 안넣음
-                        Log.i(TAG, "totalTime>userTime");
-                        return;
-                    }
+//                    Log.i(TAG, ""+MainActivity.userTime);
+//                    if(totalTime>MainActivity.userTime){ // userTime보다 크면 경로에 안넣음
+//                        Log.i(TAG, "totalTime>userTime");
+//                        return;
+//                    }
                 }
                 // 노드 파싱
                 JSONObject geometry=jObject.getJSONObject("geometry");

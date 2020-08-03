@@ -131,6 +131,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.d("____TEST____", "두 번 이상 클릭하면 안돼요~"+count_marker);
                     //Log.d(TAG, start.latitude+" "+ end.latitude);
 
+                    // 경유지 받아오기
+//                    CalNodes getnode = new CalNodes();
+//                    getnode.calDist(2,end);
+
                     //t-map api 호출 : 출발지->도착지 경로 좌표 구함
                     GetNode g=new GetNode();
                     ArrayList<ArrayList<LatLngAlt>> resultList=g.getNode(start, end); // 경로 노드 받아오기 (고도 포함)
@@ -140,8 +144,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     CalClosedNodes c = new CalClosedNodes();
                     LatLng midXY = c.cal_middle_latlng(start,end);
 
-                    CalNodes getnode = new CalNodes();
-                    getnode.calDist(2,end);
 
 
                    // c.cal_five_latlng(end,nearNodes); //DB수정

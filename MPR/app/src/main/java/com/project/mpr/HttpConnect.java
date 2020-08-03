@@ -1,19 +1,22 @@
 package com.project.mpr;
 
-import android.app.Activity;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashSet;
 
 public class HttpConnect {//google-map : 고도 api, t-map : 도보 경로 api
+    private static final String TAG="HttpConnect";
     String MY_GOOGLE_API="AIzaSyDbtoRX-sfO3iCcIdxyApzYFTa2oCU9gcI";
     String MY_TMAP_API="l7xxa0fc69cead9948e4ae68b19059e7a937";
+    HashSet<String> hashSet=new HashSet<>();
 
     public String getAltitudeURL(LatLng point){
         return "https://maps.googleapis.com/maps/api/elevation/json?locations="+point.latitude+ ","+point.longitude+"&key="+MY_GOOGLE_API;
@@ -51,9 +54,11 @@ public class HttpConnect {//google-map : 고도 api, t-map : 도보 경로 api
             }
 
             returnText = sb.toString();
-            Log.d("LOG", u);
-            Log.d("LOG", returnText);
+            Log.d(TAG, u);
+            Log.d(TAG, returnText);
 
+        } catch (FileNotFoundException e){
+            Log.d(TAG, "FileNotFoundException");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -64,6 +69,16 @@ public class HttpConnect {//google-map : 고도 api, t-map : 도보 경로 api
             }
         }
 
-        return returnText;
+        if(!returnText.equals("") && !isSameData(returnText))  // FileNotFound가 아니고 새 값이라면
+            return returnText;
+        else return "";
+    }
+
+    public boolean isSameData(String data){ // 중복되는 json이면 true 리턴
+        if(hashSet.contains(data)) return true;
+        else {
+            hashSet.add(data);
+            return false;
+        }
     }
 }

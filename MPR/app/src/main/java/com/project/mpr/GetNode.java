@@ -1,5 +1,6 @@
 package com.project.mpr;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -28,8 +29,8 @@ public class GetNode extends Thread{
          * v drawRoute()로 맵에 띄우기
          *
          * problem
-         * 같은 json을 리턴받는 경우
-         * v 리턴 경로가 없는 경우 (FileNotFoundException)         *
+         * v 같은 json을 리턴받는 경우
+         * v 리턴 경로가 없는 경우 (FileNotFoundException)
          * 원래 최단경로도 보여주면 좋을 듯
          */
         combList=getCombList(2); // num 수정
@@ -39,30 +40,29 @@ public class GetNode extends Thread{
         Thread thread=new Thread() {
             public void run() {
                 HttpConnect h = new HttpConnect();
-//                for(int i=0;i<combList.size();i++){ // passList 생성
+                for(int i=0;i<combList.size();i++){ // 조합 수 만큼 경유지 포함한 경로 요청
                     list=new ArrayList<>();
-//                    passList="";
-//                    String[] stopoverIdx=combList.get(i).split(",");
-//                    for (String idx:stopoverIdx) {
-//                        LatLng node=nodeList.get(Integer.parseInt(idx));
-//                        if(!passList.equals("")) passList+=",";
-//                        passList+=node.longitude+","+node.latitude;
-//                    }
+                    passList="";
+                    String[] stopoverIdx=combList.get(i).split(",");
+                    for (String idx:stopoverIdx) { // passList 생성
+                        LatLng node=nodeList.get(Integer.parseInt(idx));
+                        if(!passList.equals("")) passList+=",";
+                        passList+=node.longitude+","+node.latitude;
+                    }
                     String url = h.getDirectionURL(start, end);
-//                    url+=passList;
-//                    Log.d(TAG, i+" "+url);
+                    url+=passList;
                     jsonData = h.httpConnection(url);
-                    jsonRead(jsonData);
+                    if(!jsonData.equals("")) jsonRead(jsonData);
                     Log.d(TAG, "Node Size: "+list.size());
                     if(list.size()!=0) resultList.add(list);
-//                }
+                }
             }
         };
         thread.start();
 
         try{
             thread.join(); // 쓰레드 종료 후 list 리턴
-            Log.d("thread end", ""+resultList.size());
+            Log.d(TAG, "resultList size: "+resultList.size());
 //            GetAltitude ga=new GetAltitude(); // 고도 받아오기
 //            ga.setAltitude(list);
         }catch(InterruptedException e){
@@ -72,12 +72,25 @@ public class GetNode extends Thread{
     }
 
     public void jsonRead(String json){ // 파싱
+        Log.i(TAG, "jsonRead()");
+        int totalTime; // 경로 소요 시간
         try {
             JSONObject jsonObj = new JSONObject(json);
             String features=jsonObj.getString("features");
             JSONArray fArray=new JSONArray(features);
             for(int i=0;i<fArray.length();i++){
                 JSONObject jObject=fArray.getJSONObject(i);
+                if(i==0) { // totalTime 파싱
+                    JSONObject properties=jObject.getJSONObject("properties");
+                    totalTime=properties.getInt("totalTime");
+                    Log.i(TAG, "totalTime: "+totalTime);
+                    Log.i(TAG, ""+MainActivity.userTime);
+                    if(totalTime>MainActivity.userTime){ // userTime보다 크면 경로에 안넣음
+                        Log.i(TAG, "totalTime>userTime");
+                        return;
+                    }
+                }
+                // 노드 파싱
                 JSONObject geometry=jObject.getJSONObject("geometry");
                 String type=geometry.getString("type");
                 if(type.equals("LineString")){

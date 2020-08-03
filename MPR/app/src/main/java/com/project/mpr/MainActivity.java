@@ -1,6 +1,7 @@
 package com.project.mpr;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private final String TAG = "MainActivity";
     private View mLayout;
     EditText editText;
-    int userTime;
+    static int userTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +53,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String str=editText.getText().toString();
         userTime=Integer.parseInt(str);
         Log.i(TAG, "userTime "+userTime);
-    }
-    public GoogleMap getMap(){
-        return gMap;
     }
 
     // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
@@ -109,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        gMap.moveCamera(CameraUpdateFactory.newLatLng(school));
 //        gMap.animateCamera(CameraUpdateFactory.zoomTo(14));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(school,15));
-        Log.d("!", school.latitude+" "+school.longitude);
+//        Log.d("!", school.latitude+" "+school.longitude);
         //핀 찍기
         gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -137,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     LatLng midXY = c.cal_middle_latlng(start,end);
 
                     //firebase 수정,읽기
-                    c.cal_five_latlng(end); //DB수정
+//                    c.cal_five_latlng(end); //DB수정
 
 
                     //2개 경유지
@@ -178,14 +176,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
     public void drawRoute(ArrayList<ArrayList<LatLngAlt>> resultList){ // 맵에 경로 그리기
         /**
          * problem
          * 경로가 overlap되는 부분이 있으면 width가 작은 것이 가려짐
-         *
+         * 맵에는 경로 하나만 띄울 수 있도록 함, 밑에 경로 리스트 중 하나를 선택 시 그 경로를 보여주는 식으로 변경
          */
         Log.d(TAG,"drawRoute()");
-        int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
         Polyline[] polylines=new Polyline[resultList.size()];
 
         for(int i=0;i<resultList.size();i++){
@@ -197,9 +195,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         new PolylineOptions().add(
                                 new LatLng(src.latitude, src.longitude),
                                 new LatLng(dest.latitude, dest.longitude)
-                        ).width(5).color(polyColor[i]).geodesic(true)
+                        ).width(10-2*i).color(polyColor[i]).geodesic(true)
                 );
-                polylines[i].setZIndex((float) Math.pow(100,i));
+//                polylines[i].setZIndex((float) Math.pow(100,i));
+
             }
         }
 

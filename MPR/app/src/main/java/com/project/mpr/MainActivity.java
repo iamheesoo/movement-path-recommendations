@@ -119,21 +119,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 else if(count_marker==1){//목적지 좌표
                     end=point;
                 }
-                if(count_marker>=2){
+                if(count_marker==2){
                     count_marker++;
                     Log.d("____TEST____", "두 번 이상 클릭하면 안돼요~"+count_marker);
                     //Log.d(TAG, start.latitude+" "+ end.latitude);
 
                     //t-map api 호출 : 출발지->도착지 경로 좌표 구함
                     GetNode g=new GetNode();
-                    ArrayList<LatLngAlt> list=g.getNode(start, end); // 경로 노드 받아오기 (고도 포함)
-                    drawRoute(list); // 경로 그리기
+                    ArrayList<ArrayList<LatLngAlt>> resultList=g.getNode(start, end); // 경로 노드 받아오기 (고도 포함)
+                    drawRoute(resultList); // 경로 그리기
 
                     //중간 좌표 계산하기
                     CalClosedNodes c = new CalClosedNodes();
                     LatLng midXY = c.cal_middle_latlng(start,end);
-                    //c.getFirebaseData();//------FIREBASE TEST-------
-                    c.cal_five_latlng(2,end); // 경유지 개수 2
+//                    c.getFirebaseData();//------FIREBASE TEST-------
+//                    c.cal_five_latlng(2,end); // 경유지 개수 2
 
                     //중간 좌표 찍기
                     MarkerOptions midM = new MarkerOptions();
@@ -167,26 +167,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    ArrayList<Polyline> polylines=new ArrayList<>();
-    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
-    int polyIdx=0;
-    public void drawRoute(ArrayList<LatLngAlt> list){ // 맵에 경로 그리기
+    public void drawRoute(ArrayList<ArrayList<LatLngAlt>> resultList){ // 맵에 경로 그리기
+        /**
+         * problem
+         * 경로가 overlap되는 부분이 있으면 width가 작은 것이 가려짐
+         *
+         */
         Log.d(TAG,"drawRoute()");
-        if(polyIdx>=5) { // 경로 최대 5개 가능
-            Log.d(TAG, "polyLine idx: "+polyIdx);
-            return;
+        int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
+        Polyline[] polylines=new Polyline[resultList.size()];
+
+        for(int i=0;i<resultList.size();i++){
+            ArrayList<LatLngAlt> list=resultList.get(i);
+            for(int j=0;j<list.size()-1;j++){
+                LatLngAlt src=list.get(j);
+                LatLngAlt dest=list.get(j+1);
+                polylines[i]=gMap.addPolyline(
+                        new PolylineOptions().add(
+                                new LatLng(src.latitude, src.longitude),
+                                new LatLng(dest.latitude, dest.longitude)
+                        ).width(5).color(polyColor[i]).geodesic(true)
+                );
+                polylines[i].setZIndex((float) Math.pow(100,i));
+            }
         }
-        for(int i=0;i<list.size()-1;i++){
-            LatLngAlt src=list.get(i);
-            LatLngAlt dest=list.get(i+1);
-            Polyline line=gMap.addPolyline(
-                    new PolylineOptions().add(
-                            new LatLng(src.latitude, src.longitude),
-                            new LatLng(dest.latitude, dest.longitude)
-                    ).width(5).color(polyColor[polyIdx]).geodesic(true)
-            );
-        }
-        polyIdx++; // 다음 컬러 사용을 위함
+
     }
 }
 

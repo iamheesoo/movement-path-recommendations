@@ -12,36 +12,63 @@ import java.util.ArrayList;
 
 public class GetNode extends Thread{
     private static String TAG="GetNode";
-    public ArrayList<LatLngAlt> list; // 경로 노드 리스트
+    ArrayList<ArrayList<LatLngAlt>> resultList; // 모든 경로를 포함한 리스트
+    ArrayList<LatLngAlt> list; // 경로 노드 리스트
+    ArrayList<String> combList; // 조합 리스트
     String jsonData;
+    String passList;
 
-    public ArrayList<LatLngAlt> getNode(final LatLng start, final LatLng end) {
-        list=new ArrayList<>();
+    ArrayList<LatLng> nodeList=new ArrayList<>();
+
+    public ArrayList<ArrayList<LatLngAlt>> getNode(final LatLng start, final LatLng end) {
         /**
-         * 이제 combList를 받아서
-         * 경유지 포함한 url 만들 수 있게 메소드 수정 후 리턴 받아서
+         * v 이제 combList를 받아서
+         * v 경유지 포함한 url 만들 수 있게 메소드 수정 후 리턴 받아서
          * 경로 max 5니까 totalTime과 userTime 체크해서 초과하는 것은 거르고
-         * drawRoute()로 맵에 띄우기
+         * v drawRoute()로 맵에 띄우기
+         *
+         * problem
+         * 같은 json을 리턴받는 경우
+         * v 리턴 경로가 없는 경우 (FileNotFoundException)         *
+         * 원래 최단경로도 보여주면 좋을 듯
          */
+        combList=getCombList(2); // num 수정
+        resultList=new ArrayList<>();
+        nodeList.add(new LatLng(36.368880, 127.341553)); // 인문대학 위 교차로
+        nodeList.add(new LatLng(36.369278, 127.345920)); // 중앙도서관 앞 교차로
         Thread thread=new Thread() {
             public void run() {
                 HttpConnect h = new HttpConnect();
-                String url = h.getDirectionURL(start, end);
-                jsonData = h.httpConnection(url);
-                jsonRead(jsonData);
-                Log.d(TAG, "Node Size: "+list.size());
+//                for(int i=0;i<combList.size();i++){ // passList 생성
+                    list=new ArrayList<>();
+//                    passList="";
+//                    String[] stopoverIdx=combList.get(i).split(",");
+//                    for (String idx:stopoverIdx) {
+//                        LatLng node=nodeList.get(Integer.parseInt(idx));
+//                        if(!passList.equals("")) passList+=",";
+//                        passList+=node.longitude+","+node.latitude;
+//                    }
+                    String url = h.getDirectionURL(start, end);
+//                    url+=passList;
+//                    Log.d(TAG, i+" "+url);
+                    jsonData = h.httpConnection(url);
+                    jsonRead(jsonData);
+                    Log.d(TAG, "Node Size: "+list.size());
+                    if(list.size()!=0) resultList.add(list);
+//                }
             }
         };
         thread.start();
 
         try{
             thread.join(); // 쓰레드 종료 후 list 리턴
-            GetAltitude ga=new GetAltitude(); // 고도 받아오기
-            ga.setAltitude(list);
+            Log.d("thread end", ""+resultList.size());
+//            GetAltitude ga=new GetAltitude(); // 고도 받아오기
+//            ga.setAltitude(list);
         }catch(InterruptedException e){
             e.printStackTrace();
         }
-        return list;
+        return resultList;
     }
 
     public void jsonRead(String json){ // 파싱
@@ -78,10 +105,11 @@ public class GetNode extends Thread{
         boolean[] visit;
         for(int i=0;i<num;i++){
             visit=new boolean[num];
-            comb(visit, 0, num, i, "", combList);
+            comb(visit, 0, num, i+1, "", combList);
         }
         return combList;
     }
+
     public void comb(boolean[] visited, int start, int n, int r, String nowComb, ArrayList<String> list){ // 조합
         // 파라미터: (사용여부 체크 배열, 총 숫자 개수, 뽑을 개수, 현재까지 뽑은 숫자들, 조합을 저장할 리스트)
         if(r==0) { // r개 만큼 뽑기 완료

@@ -23,9 +23,12 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    public static LinkedList<LatLng> nearNodes=new LinkedList<>();
 
     private GoogleMap gMap;
     int count_marker = 0;
@@ -107,11 +110,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        gMap.animateCamera(CameraUpdateFactory.zoomTo(14));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(school,15));
         Log.d("!", school.latitude+" "+school.longitude);
-
         //핀 찍기
         gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(final LatLng point) {
+                //
 
                 if(count_marker==0){//출발지 좌표
                     start=point;
@@ -132,8 +135,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //중간 좌표 계산하기
                     CalClosedNodes c = new CalClosedNodes();
                     LatLng midXY = c.cal_middle_latlng(start,end);
-                    //c.getFirebaseData();//------FIREBASE TEST-------
-                    c.cal_five_latlng(2,end); // 경유지 개수 2
+
+                    //firebase 수정,읽기
+                    c.cal_five_latlng(end); //DB수정
+
+
+                    //2개 경유지
+
+                    System.out.println("리스트야 제대로 들어갔니?"+c.orderNodes(2,nearNodes).size());
+                    //c.printList(nearNodes);//내용 확인
+
 
                     //중간 좌표 찍기
                     MarkerOptions midM = new MarkerOptions();

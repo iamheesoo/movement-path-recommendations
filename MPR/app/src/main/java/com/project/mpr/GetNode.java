@@ -37,7 +37,7 @@ public class GetNode extends Thread{
         nodeList.add(new LatLng(36.368880, 127.341553)); // 인문대학 위 교차로
         nodeList.add(new LatLng(36.369278, 127.345920)); // 중앙도서관 앞 교차로
         Thread thread=new Thread() {
-            public void run() {
+                public void run() {
                 HttpConnect h = new HttpConnect();
 //                for(int i=0;i<combList.size();i++){ // passList 생성
                     list=new ArrayList<>();

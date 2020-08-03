@@ -29,6 +29,7 @@ import java.util.LinkedList;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     public static LinkedList<LatLng> nearNodes=new LinkedList<>();
+    public static ArrayList<NodeAndDist> nodeDistarrayList = new ArrayList<>();//
 
     private GoogleMap gMap;
     int count_marker = 0;
@@ -123,6 +124,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     end=point;
                 }
                 if(count_marker==2){
+                    /**
+                    * count_marker >=2 이상일 경우,
+                     * 아래의 else가 실행되어 계속 마커가 찍힘
+                     * * */
+
                     count_marker++;
                     Log.d("____TEST____", "두 번 이상 클릭하면 안돼요~"+count_marker);
                     //Log.d(TAG, start.latitude+" "+ end.latitude);
@@ -137,12 +143,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     LatLng midXY = c.cal_middle_latlng(start,end);
 
                     //firebase 수정,읽기
-                    c.cal_five_latlng(end); //DB수정
+                    CalNodes getnode = new CalNodes();
+                    getnode.calDist(2,end);
 
 
+                   // c.cal_five_latlng(end,nearNodes); //DB수정
+                    //c.orderNodes(2,nearNodes);//2개 경유지
+                    //c.printlinkedList(nearNodes);
+                    //c.printList(c.resultList);
                     //2개 경유지
-
-                    System.out.println("리스트야 제대로 들어갔니?"+c.orderNodes(2,nearNodes).size());
+                    //System.out.println("리스트야 제대로 들어갔니?"+c.orderNodes(2,nearNodes).size());
                     //c.printList(nearNodes);//내용 확인
 
 

@@ -19,7 +19,7 @@ public class GetNode extends Thread{
     String jsonData;
     String passList;
 
-    ArrayList<LatLng> nodeList;
+    ArrayList<LatLng> nodeList=new ArrayList<>();
 
     public ArrayList<ArrayList<LatLngAlt>> getNode(final LatLng start, final LatLng end) {
         /**
@@ -40,10 +40,10 @@ public class GetNode extends Thread{
         resultList=new ArrayList<>();
 
         // temp
-        nodeList=new ArrayList<>();
+        /*nodeList=new ArrayList<>();
         nodeList.add(new LatLng(36.368880, 127.341553)); // 인문대학 위 교차로
         nodeList.add(new LatLng(36.369278, 127.345920)); // 중앙도서관 앞 교차로
-        Log.i(TAG, nodeList.size()+"");
+        Log.i(TAG, nodeList.size()+"");*/
 
         Thread thread=new Thread() {
                 public void run() {

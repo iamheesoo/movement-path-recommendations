@@ -147,6 +147,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     CalClosedNodes c = new CalClosedNodes();
                     LatLng midXY = c.cal_middle_latlng(start,end);
 
+                    //중간 좌표 찍기
+                    /*MarkerOptions midM = new MarkerOptions();
+                    midM.title("중간 값 좌표");
+                    midM.snippet("위도 : "+midXY.latitude+ "경도 : "+midXY.longitude);
+                    midM.position(midXY);
+                    gMap.addMarker(midM);*/
 
 
                    // c.cal_five_latlng(end,nearNodes); //DB수정
@@ -157,13 +163,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //System.out.println("리스트야 제대로 들어갔니?"+c.orderNodes(2,nearNodes).size());
                     //c.printList(nearNodes);//내용 확인
 
-
-                    //중간 좌표 찍기
-                    MarkerOptions midM = new MarkerOptions();
-                    midM.title("중간 값 좌표");
-                    midM.snippet("위도 : "+midXY.latitude+ "경도 : "+midXY.longitude);
-                    midM.position(midXY);
-                    gMap.addMarker(midM);
 
                 }else{
                     MarkerOptions mOptions = new MarkerOptions();

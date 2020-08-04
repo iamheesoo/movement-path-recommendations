@@ -7,7 +7,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -75,7 +77,7 @@ public class CalNodes extends Thread{
             @Override
             public void onDataChange(@NonNull final DataSnapshot snapshot) {
                 Log.i(TAG, "onDataChange()");
-                final Thread thread=new Thread() {
+                  final Thread thread=new Thread() {
                     public void run() {
                         for(int i=0; i<num;i++){
                             //리스트에서 node검색
@@ -85,6 +87,7 @@ public class CalNodes extends Thread{
                     Log.d("firebase", "---FIREBASE--- longtitude : "+mpr.getLongtitude().doubleValue());*/
                             //파이어베이스에서 위,경도 찾아 리스트에 저장
                             solutionList.add(new LatLng(mpr.getLatitude().doubleValue(),mpr.getLongtitude().doubleValue()));
+
                         }
                     }
                 };
@@ -100,6 +103,19 @@ public class CalNodes extends Thread{
                     getNode.nodeList = getSolutionList(); //리스트 전달
                     ArrayList<ArrayList<LatLngAlt>> resultList=getNode.getNode(start, end);
                     drawRoute(resultList,gMap);
+
+                    /**
+                     * test : add marker
+                     */
+                    MarkerOptions node = new MarkerOptions();
+                    node.title("node 좌표");
+                    node.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                    for(int k=0;k<num;k++){
+                        node.snippet("위도 : "+solutionList.get(k).latitude+ "경도 : "+solutionList.get(k).longitude);
+                        node.position(solutionList.get(k));
+                        gMap.addMarker(node);
+                    }
+
 
 
                 }catch(InterruptedException e){

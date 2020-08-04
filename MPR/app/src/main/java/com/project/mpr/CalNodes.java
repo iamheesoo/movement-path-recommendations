@@ -159,21 +159,19 @@ public class CalNodes extends Thread{
          * 맵에는 경로 하나만 띄울 수 있도록 함, 밑에 경로 리스트 중 하나를 선택 시 그 경로를 보여주는 식으로 변경
          */
         Log.d(TAG,"drawRoute()");
-        Polyline[] polylines=new Polyline[resultList.size()];
 
+        Polyline[] polylines=new Polyline[resultList.size()];
         for(int i=0;i<resultList.size();i++){
             ArrayList<LatLngAlt> list=resultList.get(i);
-            for(int j=0;j<list.size()-1;j++){
-                LatLngAlt src=list.get(j);
-                LatLngAlt dest=list.get(j+1);
-                polylines[i]=gMap.addPolyline(
-                        new PolylineOptions().add(
-                                new LatLng(src.latitude, src.longitude),
-                                new LatLng(dest.latitude, dest.longitude)
-                        ).width(10-2*i).color(polyColor[i]).geodesic(true)
-                );
+            ArrayList<LatLng> polyList=new ArrayList<>();
+            for(LatLngAlt node:list)
+                polyList.add(new LatLng(node.latitude, node.longitude));
 
-            }
+            polylines[i]=gMap.addPolyline(new PolylineOptions()
+                    .addAll(polyList)
+                    .color(polyColor[i])
+                    .width(10-3*i)
+            );
         }
 
     }

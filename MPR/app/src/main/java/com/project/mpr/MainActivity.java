@@ -190,32 +190,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
-    public void drawRoute(ArrayList<ArrayList<LatLngAlt>> resultList){ // 맵에 경로 그리기
-        /**
-         * problem
-         * 경로가 overlap되는 부분이 있으면 width가 작은 것이 가려짐
-         * 맵에는 경로 하나만 띄울 수 있도록 함, 밑에 경로 리스트 중 하나를 선택 시 그 경로를 보여주는 식으로 변경
-         */
-        Log.d(TAG,"drawRoute()");
-        Polyline[] polylines=new Polyline[resultList.size()];
-
-        for(int i=0;i<resultList.size();i++){
-            ArrayList<LatLngAlt> list=resultList.get(i);
-            for(int j=0;j<list.size()-1;j++){
-                LatLngAlt src=list.get(j);
-                LatLngAlt dest=list.get(j+1);
-                polylines[i]=gMap.addPolyline(
-                        new PolylineOptions().add(
-                                new LatLng(src.latitude, src.longitude),
-                                new LatLng(dest.latitude, dest.longitude)
-                        ).width(10-2*i).color(polyColor[i]).geodesic(true)
-                );
-//                polylines[i].setZIndex((float) Math.pow(100,i));
-
-            }
-        }
-
-    }
+//    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
+//    public void drawRoute(ArrayList<ArrayList<LatLngAlt>> resultList){ // 맵에 경로 그리기
+//        /**
+//         * problem
+//         * 경로가 overlap되는 부분이 있으면 width가 작은 것이 가려짐
+//         * 맵에는 경로 하나만 띄울 수 있도록 함, 밑에 경로 리스트 중 하나를 선택 시 그 경로를 보여주는 식으로 변경
+//         */
+//        Log.d(TAG,"drawRoute()");
+//        Polyline[] polylines=new Polyline[resultList.size()];
+//
+//        for(int i=0;i<resultList.size();i++){
+//            ArrayList<LatLngAlt> list=resultList.get(i);
+//            for(int j=0;j<list.size()-1;j++){
+//                LatLngAlt src=list.get(j);
+//                LatLngAlt dest=list.get(j+1);
+//                polylines[i]=gMap.addPolyline(
+//                        new PolylineOptions().add(
+//                                new LatLng(src.latitude, src.longitude),
+//                                new LatLng(dest.latitude, dest.longitude)
+//                        ).width(10-2*i).color(polyColor[i])/*.geodesic(true)*/
+//                );
+////                polylines[i].setZIndex((float) Math.pow(100,i));
+//
+//            }
+//        }
+//
+//    }
 }
 

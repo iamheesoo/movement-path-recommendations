@@ -18,6 +18,7 @@ public class GetNode extends Thread{
     ArrayList<String> combList; // 조합 리스트
     String jsonData;
     String passList;
+    int totalTime, totalDistance; // 경로 소요 시간
 
     ArrayList<LatLng> nodeList=new ArrayList<>();
 
@@ -62,7 +63,16 @@ public class GetNode extends Thread{
                     jsonData = h.httpConnection(url);
                     if(!jsonData.equals("")) jsonRead(jsonData);
                     Log.d(TAG, "Node Size: "+list.size());
-                    if(list.size()!=0) resultList.add(list);
+                    if(list.size()!=0) {
+                        resultList.add(list);
+                        GetAltitude ga=new GetAltitude(); // 고도 받아오기
+                        ga.setAltitude(list);
+
+                        Calories calories=new Calories(); // 칼로리 계산
+                        calories.getCalories(list, totalDistance, totalTime);
+                        
+                    }
+
                 }
             }
         };
@@ -71,8 +81,7 @@ public class GetNode extends Thread{
         try{
             thread.join(); // 쓰레드 종료 후 list 리턴
             Log.d(TAG, "resultList size: "+resultList.size());
-            GetAltitude ga=new GetAltitude(); // 고도 받아오기
-            ga.setAltitude(list);
+
         }catch(InterruptedException e){
             e.printStackTrace();
         }
@@ -81,7 +90,6 @@ public class GetNode extends Thread{
 
     public void jsonRead(String json){ // 파싱
         Log.i(TAG, "jsonRead()");
-        int totalTime, totalDistance; // 경로 소요 시간
         try {
             JSONObject jsonObj = new JSONObject(json);
             String features=jsonObj.getString("features");
@@ -101,13 +109,14 @@ public class GetNode extends Thread{
                 }
                 // 노드 파싱
                 JSONObject geometry=jObject.getJSONObject("geometry");
+
                 String type=geometry.getString("type");
                 if(type.equals("LineString")){
                     String coordinates=geometry.getString("coordinates");
                     coordinates=coordinates.replaceAll("[\\[\\]]", "");// 대괄호 삭제
                     String[] latlng=coordinates.split(",");
                     for(int j=0;j<latlng.length;j+=2)
-                        list.add(new LatLngAlt(Double.parseDouble(latlng[j+1]), Double.parseDouble(latlng[j]), 0));
+                        list.add(new LatLngAlt(Double.parseDouble(latlng[j+1]), Double.parseDouble(latlng[j])));
                 }
             }
 

@@ -54,8 +54,8 @@ public class HttpConnect {//google-map : 고도 api, t-map : 도보 경로 api
             }
 
             returnText = sb.toString();
-            Log.d(TAG, u);
-            Log.d(TAG, returnText);
+//            Log.d(TAG, u);
+//            Log.d(TAG, returnText);
 
         } catch (FileNotFoundException e){
             Log.d(TAG, "FileNotFoundException");

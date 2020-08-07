@@ -71,8 +71,8 @@ public class GetNode extends Thread{
         try{
             thread.join(); // 쓰레드 종료 후 list 리턴
             Log.d(TAG, "resultList size: "+resultList.size());
-//            GetAltitude ga=new GetAltitude(); // 고도 받아오기
-//            ga.setAltitude(list);
+            GetAltitude ga=new GetAltitude(); // 고도 받아오기
+            ga.setAltitude(list);
         }catch(InterruptedException e){
             e.printStackTrace();
         }
@@ -81,7 +81,7 @@ public class GetNode extends Thread{
 
     public void jsonRead(String json){ // 파싱
         Log.i(TAG, "jsonRead()");
-        int totalTime; // 경로 소요 시간
+        int totalTime, totalDistance; // 경로 소요 시간
         try {
             JSONObject jsonObj = new JSONObject(json);
             String features=jsonObj.getString("features");
@@ -91,7 +91,8 @@ public class GetNode extends Thread{
                 if(i==0) { // totalTime 파싱
                     JSONObject properties=jObject.getJSONObject("properties");
                     totalTime=properties.getInt("totalTime");
-                    Log.i(TAG, "totalTime: "+totalTime);
+                    totalDistance=properties.getInt("totalDistance");
+                    Log.i(TAG, "totalTime: "+totalTime+" totalDistance: "+totalDistance);
 //                    Log.i(TAG, ""+MainActivity.userTime);
 //                    if(totalTime>MainActivity.userTime){ // userTime보다 크면 경로에 안넣음
 //                        Log.i(TAG, "totalTime>userTime");

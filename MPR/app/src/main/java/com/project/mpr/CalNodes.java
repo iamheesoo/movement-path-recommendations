@@ -186,7 +186,7 @@ public class CalNodes extends Thread{
             polylines[i]=gMap.addPolyline(new PolylineOptions()
                     .addAll(polyList)
                     .color(polyColor[i])
-                    .width(10-3*i)
+                    .width(16-3*i)
             );
         }
 

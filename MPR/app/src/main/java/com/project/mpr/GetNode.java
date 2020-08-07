@@ -37,7 +37,7 @@ public class GetNode extends Thread{
 //        CalNodes getnode = new CalNodes(); // 경유지 가져오기
 //        nodeList=getnode.calDist(2,end);
 
-        combList=getCombList(2); // num 수정
+        combList=getCombList(4); // num 수정
         resultList=new ArrayList<>();
 
         // temp

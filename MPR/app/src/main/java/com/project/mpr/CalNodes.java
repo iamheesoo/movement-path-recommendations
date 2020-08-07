@@ -24,12 +24,17 @@ import java.util.Collections;
 
 public class CalNodes extends Thread{
     private static final String TAG="CalNodes";
-    ArrayList<NodeAndDist> resultList = new ArrayList<>();//결과를 저장할 리스트
-    ArrayList<LatLng> solutionList = new ArrayList<>();
+    ArrayList<NodeAndDist> destList = new ArrayList<>();
+    ArrayList<NodeAndDist> sourceList = new ArrayList<>();
+    ArrayList<LatLng> solutionList = new ArrayList<>();//인접 노드 결과를 저장할 리스트
     GetNode getNode;
 
     public void calDist(final int num, final LatLng start, final LatLng end, final GoogleMap gMap){//목적지에서 인접한 num개의 좌표 계산
         final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        final Location souLocation = new Location("startPoint");
+        souLocation.setLatitude(start.latitude);
+        souLocation.setLongitude(start.longitude);
 
         final Location endLocation = new Location("endPoint");
         endLocation.setLatitude(end.latitude);
@@ -45,20 +50,27 @@ public class CalNodes extends Thread{
                             FirebaseDB mpr = snapshot.child("node"+i).getValue(FirebaseDB.class);
                             destLocation.setLatitude(mpr.getLatitude().doubleValue());
                             destLocation.setLongitude(mpr.getLongtitude().doubleValue());
-                            Double temp = (double)endLocation.distanceTo(destLocation);
 
-                            resultList.add(new NodeAndDist(snapshot.child("node"+i).getKey(),temp));//list에 추가
+                            Double sourceTemp = (double)souLocation.distanceTo(destLocation); //출발지로부터 거리
+                            Double destTemp = (double)endLocation.distanceTo(destLocation); //목적지로부터 거리
+
+                            sourceList.add(new NodeAndDist(snapshot.child("node"+i).getKey(),sourceTemp)); //sourceList에 추가
+                            destList.add(new NodeAndDist(snapshot.child("node"+i).getKey(),destTemp));//destList에 추가
                         }
                     }
                 };
                 thread.start();
                 try{
                     thread.join(); // 쓰레드 종료
-                    Log.d("sort list", " "+resultList.size());
-                    Collections.sort(resultList);
+                    Log.d("sort list", " "+destList.size());
 
-                    //printList(resultList);//
-                    getNumNode(num,resultList,start,end,gMap);
+                    Collections.sort(sourceList);
+                    Collections.sort(destList);
+
+                    //printList(sourceList);//
+                    //printList(destList);//
+
+                    getNumNode(num,sourceList,destList,start,end,gMap);
 
                 }catch(InterruptedException e){
                     e.printStackTrace();
@@ -72,21 +84,23 @@ public class CalNodes extends Thread{
         mDatabase.addValueEventListener(postListener);
     }
 
-    public void getNumNode(final int num, final ArrayList<NodeAndDist> arr,final LatLng start,final LatLng end, final GoogleMap gMap){
+    public void getNumNode(final int num,final ArrayList<NodeAndDist> sourcrArr,final ArrayList<NodeAndDist> destArr,final LatLng start,final LatLng end, final GoogleMap gMap){
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull final DataSnapshot snapshot) {
                 Log.i(TAG, "onDataChange()");
                   final Thread thread=new Thread() {
                     public void run() {
-                        for(int i=0; i<num;i++){
+                        for(int i=0; i<(num/2);i++){
                             //리스트에서 node검색
-                            FirebaseDB mpr = snapshot.child(arr.get(i).node).getValue(FirebaseDB.class);
+                            FirebaseDB mpr1 = snapshot.child(destArr.get(i).node).getValue(FirebaseDB.class);
+                            FirebaseDB mpr2 = snapshot.child(sourcrArr.get(i).node).getValue(FirebaseDB.class);
                     /*Log.d("firebase", "---FIREBASE--- Node id : "+arr.get(i).node);
                     Log.d("firebase", "---FIREBASE--- latitude : "+mpr.getLatitude().doubleValue());
                     Log.d("firebase", "---FIREBASE--- longtitude : "+mpr.getLongtitude().doubleValue());*/
                             //파이어베이스에서 위,경도 찾아 리스트에 저장
-                            solutionList.add(new LatLng(mpr.getLatitude().doubleValue(),mpr.getLongtitude().doubleValue()));
+                            solutionList.add(new LatLng(mpr1.getLatitude().doubleValue(),mpr1.getLongtitude().doubleValue()));
+                            solutionList.add(new LatLng(mpr2.getLatitude().doubleValue(),mpr2.getLongtitude().doubleValue()));
 
                         }
                     }
@@ -168,7 +182,7 @@ public class CalNodes extends Thread{
     }
 
     int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
-    public void drawRoute(ArrayList<ArrayList<LatLngAlt>> resultList, GoogleMap gMap){ // 맵에 경로 그리기
+    public void drawRoute(final ArrayList<ArrayList<LatLngAlt>> resultList, GoogleMap gMap){ // 맵에 경로 그리기
         /**
          * problem
          * 경로가 overlap되는 부분이 있으면 width가 작은 것이 가려짐
@@ -187,8 +201,24 @@ public class CalNodes extends Thread{
                     .addAll(polyList)
                     .color(polyColor[i])
                     .width(16-3*i)
+                    .clickable(true)//add clickable
             );
         }
+
+        gMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener(){
+            public void onPolylineClick(Polyline polyline) {
+                int strokeColor = polyline.getColor() ^ 0x0000CC00;
+                polyline.setColor(strokeColor);//클릭 시 색상 변경
+                /**
+                * polyLine.getID()대신에 해당 폴리라인 리스트의 시간, 칼로리 내용으로 변경하기
+                * */
+                Log.d(TAG, "시간, 칼로리 출력: "+polyline.getId());
+                //polyline.setWidth(120);
+                //polyline.setTag(polyline.getId());
+                //polyline.setPoints(solutionList);
+
+            }
+        });
 
     }
 

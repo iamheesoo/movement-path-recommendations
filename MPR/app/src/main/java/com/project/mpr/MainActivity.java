@@ -135,8 +135,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                    CalNodes calnode = new CalNodes();
                    /**
                     * 여기서 그리기까지 다 함
+                    * num <=5
                    * */
-                   calnode.calDist(2,start,end,gMap);
+                   calnode.calDist(5,start,end,gMap);
 
                     //t-map api 호출 : 출발지->도착지 경로 좌표 구함
                     /*GetNode g=new GetNode();

@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-public class check_kcal extends AppCompatActivity {
+public class Check_kcal extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,6 +15,11 @@ public class check_kcal extends AppCompatActivity {
     }
     public void goMain(View view) {//메인 페이지로 이동
         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+        startActivity(intent);
+    }
+    public void checkRice(View view) {//한식 선택
+        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+        intent.putExtra("calorie",5);
         startActivity(intent);
     }
 }

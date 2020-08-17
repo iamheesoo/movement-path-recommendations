@@ -18,11 +18,13 @@ public class GetNode extends Thread{
     ArrayList<String> combList; // 조합 리스트
     String jsonData;
     String passList;
+    Double kcal;
+    ArrayList<SolRoute> solutionList = new ArrayList<>();
     int totalTime, totalDistance; // 경로 소요 시간
 
     ArrayList<LatLng> nodeList=new ArrayList<>();
 
-    public ArrayList<ArrayList<LatLngAlt>> getNode(final LatLng start, final LatLng end) {
+    public ArrayList<SolRoute> getNode(final LatLng start, final LatLng end) {
         /**
          * v 이제 combList를 받아서
          * v 경유지 포함한 url 만들 수 있게 메소드 수정 후 리턴 받아서
@@ -64,13 +66,13 @@ public class GetNode extends Thread{
                     if(!jsonData.equals("")) jsonRead(jsonData);
                     Log.d(TAG, "Node Size: "+list.size());
                     if(list.size()!=0) {
-                        resultList.add(list);
+                        resultList.add(list);//지워라
                         GetAltitude ga=new GetAltitude(); // 고도 받아오기
                         ga.setAltitude(list);
 
                         Calories calories=new Calories(); // 칼로리 계산
-                        calories.getCalories(list, totalDistance, totalTime);
-                        
+                        kcal=calories.getCalories(list, totalDistance, totalTime);
+                        solutionList.add(new SolRoute(list,totalDistance,totalTime,kcal));//경로 정보 저장
                     }
 
                 }
@@ -85,7 +87,8 @@ public class GetNode extends Thread{
         }catch(InterruptedException e){
             e.printStackTrace();
         }
-        return resultList;
+        //return resultList;
+        return solutionList;
     }
 
     public void jsonRead(String json){ // 파싱

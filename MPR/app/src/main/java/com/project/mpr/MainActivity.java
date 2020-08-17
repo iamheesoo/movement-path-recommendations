@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -182,6 +183,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
     }
+
+    public void check_kcal(View view) {//섭취 칼로리 페이지로 이동
+        //Toast.makeText(getApplicationContext(), "시작 버튼이 눌렸어요",
+        //Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(getApplicationContext(),check_kcal.class);
+        startActivity(intent);  //intent를 넣어 실행시키게 됩니다.
+    }
+
 
 //    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
 //    public void drawRoute(ArrayList<ArrayList<LatLngAlt>> resultList){ // 맵에 경로 그리기

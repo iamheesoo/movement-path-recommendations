@@ -15,7 +15,7 @@
                 android:id="@+id/but1"
                 android:src="@drawable/rice"
                 android:layout_weight="1"
-                android:onClick="checkRice"
+                android:onClick="goMain"
                 android:scaleType="centerInside"
                 android:background="#00000000"
                 android:text="@string/korean_food" />

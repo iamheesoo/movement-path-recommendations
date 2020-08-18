@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                      * 칼로리 선택 테스트
                      * */
                    Intent intent = getIntent(); // 칼로리 가져오기
-                   int calorie = intent.getIntExtra("calorie",10);
+                   int calorie = intent.getIntExtra("calorie",0); //set default kcal = 0
                    calnode.receive_kacl = calorie; //받아온 칼로리 설정
                    calnode.calDist(4,start,end,gMap);
 

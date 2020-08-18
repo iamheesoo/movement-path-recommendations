@@ -15,11 +15,42 @@ public class Check_kcal extends AppCompatActivity {
     }
     public void goMain(View view) {//메인 페이지로 이동
         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+
+        switch (view.getId()){
+            case R.id.but1 :
+                intent.putExtra("calorie",3);
+                break;
+            case R.id.but2 :
+                intent.putExtra("calorie",6);
+                break;
+            case R.id.but3 :
+                intent.putExtra("calorie",9);
+                break;
+            case R.id.but4 :
+                intent.putExtra("calorie",12);
+                break;
+            case R.id.but5 :
+                intent.putExtra("calorie",15);
+                break;
+            case R.id.but6 :
+                intent.putExtra("calorie",18);
+                break;
+            case R.id.but7 :
+                intent.putExtra("calorie",21);
+                break;
+            case R.id.but8 :
+                intent.putExtra("calorie",24);
+                break;
+            case R.id.but9 :
+                intent.putExtra("calorie",27);
+                break;
+        }
         startActivity(intent);
     }
-    public void checkRice(View view) {//한식 선택
+/*    public void checkRice(View view) {//한식 선택
         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-        intent.putExtra("calorie",5);
+        intent.putExtra("calorie",3);
         startActivity(intent);
-    }
+    }*/
+
 }

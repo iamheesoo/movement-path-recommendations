@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Check_kcal">
+
+    <TableLayout android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <TableRow android:layout_weight="1">
+
+            <ImageButton
+                android:id="@+id/but1"
+                android:src="@drawable/rice"
+                android:layout_weight="1"
+                android:onClick="goMain"
+                android:scaleType="centerInside"
+                android:background="#00000000"
+                android:text="@string/korean_food" />
+
+            <ImageButton
+                android:id="@+id/but2"
+                android:layout_weight="1"
+                android:src="@drawable/chinese"
+                android:scaleType="centerInside"
+                android:text="@string/chinese_food"
+                android:background="#00000000"
+                android:onClick="goMain"
+            />
+            <ImageButton
+                android:id="@+id/but3"
+                android:layout_weight="1"
+                android:src="@drawable/japanese"
+                android:scaleType="centerInside"
+                android:text="@string/japanese_food"
+                android:background="#00000000"
+                android:onClick="goMain"
+            />
+        </TableRow>
+
+        <TableRow android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/but4"
+                android:layout_weight="1"
+                android:src="@drawable/school"
+                android:scaleType="centerInside"
+                android:text="@string/school_food"
+                android:background="#00000000"
+                android:onClick="goMain"
+             />
+            <ImageButton
+                android:id="@+id/but5"
+                android:layout_weight="1"
+                android:src="@drawable/vege"
+                android:scaleType="centerInside"
+                android:text="@string/vegetable"
+                android:background="#00000000"
+                android:onClick="goMain"
+             />
+            <ImageButton
+                android:id="@+id/but6"
+                android:layout_weight="1"
+                android:src="@drawable/meat"
+                android:scaleType="centerInside"
+                android:text="@string/meat_diet"
+                android:background="#00000000"
+                android:onClick="goMain"
+             />
+        </TableRow>
+
+        <TableRow android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/but7"
+                android:layout_weight="1"
+                android:src="@drawable/spaghetti"
+                android:scaleType="centerInside"
+                android:text="@string/spaghetti"
+                android:background="#00000000"
+                android:onClick="goMain"
+                />
+            <ImageButton
+                android:id="@+id/but8"
+                android:layout_weight="1"
+                android:src="@drawable/dessert"
+                android:scaleType="centerInside"
+                android:background="#00000000"
+                android:text="@string/dessert"
+                android:onClick="goMain"
+                />
+            <ImageButton
+                android:id="@+id/but9"
+                android:layout_weight="1"
+                android:src="@drawable/fastfoods"
+                android:scaleType="centerInside"
+                android:text="@string/fastfoods"
+                android:background="#00000000"
+                android:onClick="goMain"
+                />
+        </TableRow>
+    </TableLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--
+
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="#00000000"-->

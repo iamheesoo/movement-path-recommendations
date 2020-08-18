@@ -3,7 +3,6 @@ package com.project.mpr;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,8 +18,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -126,10 +123,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     // 경유지 받아오기
                    CalNodes calnode = new CalNodes();
-                   /**
-                    * 여기서 그리기까지 다 함
-                    * num <=5
-                   * */
+                    /**
+                     * 칼로리 선택 테스트
+                     * */
+                   Intent intent = getIntent(); // 칼로리 가져오기
+                   int calorie = intent.getIntExtra("calorie",0); //set default kcal = 0
+                   calnode.receive_kacl = calorie; //받아온 칼로리 설정
                    calnode.calDist(4,start,end,gMap);
 
                     //t-map api 호출 : 출발지->도착지 경로 좌표 구함
@@ -182,6 +181,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
     }
+
+    public void check_kcal(View view) {//섭취 칼로리 페이지로 이동
+        //Toast.makeText(getApplicationContext(), "시작 버튼이 눌렸어요",
+        //Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(getApplicationContext(), Check_kcal.class);
+        startActivity(intent);  //intent를 넣어 실행시키게 됩니다.
+    }
+
 
 //    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
 //    public void drawRoute(ArrayList<ArrayList<LatLngAlt>> resultList){ // 맵에 경로 그리기

@@ -1,7 +1,9 @@
 package com.project.mpr;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.text.PrecomputedText;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -27,7 +29,9 @@ public class CalNodes extends Thread{
     ArrayList<NodeAndDist> destList = new ArrayList<>();
     ArrayList<NodeAndDist> sourceList = new ArrayList<>();
     ArrayList<LatLng> solutionList = new ArrayList<>();//인접 노드 결과를 저장할 리스트
+    ArrayList<SolRoute> solRouteArrayList=new ArrayList<>();
     GetNode getNode;
+    int receive_kacl=0;
 
     public void calDist(final int num, final LatLng start, final LatLng end, final GoogleMap gMap){//목적지에서 인접한 num개의 좌표 계산
         final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -115,8 +119,15 @@ public class CalNodes extends Thread{
                     * */
                     getNode = new GetNode();
                     getNode.nodeList = getSolutionList(); //리스트 전달
-                    ArrayList<ArrayList<LatLngAlt>> resultList=getNode.getNode(start, end);
-                    drawRoute(resultList,gMap);
+                    ArrayList<SolRoute> solRoutes = getNode.getNode(start, end);
+                    //ArrayList<ArrayList<LatLngAlt>> resultList=getNode.getNode(start, end);
+                    /**
+                    * 그려지는 경로 선택한 칼로리와 시간정보로 제한하기
+                    * */
+                    Log.d("Cal_TEST", "----------칼로리받아옴?----------- : " +receive_kacl);
+
+                    drawRoute(checkKacl(solRoutes,receive_kacl),gMap);
+
 
                     /**
                      * test : add marker
@@ -182,9 +193,10 @@ public class CalNodes extends Thread{
     }
 
     int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
-    public void drawRoute(final ArrayList<ArrayList<LatLngAlt>> resultList, GoogleMap gMap){ // 맵에 경로 그리기
+    public void drawRoute(final ArrayList<SolRoute> resultList, GoogleMap gMap){ // 맵에 경로 그리기
         /**
          * problem
+         * ArrayList<ArrayList<LatLngAlt>>
          * 경로가 overlap되는 부분이 있으면 width가 작은 것이 가려짐
          * 맵에는 경로 하나만 띄울 수 있도록 함, 밑에 경로 리스트 중 하나를 선택 시 그 경로를 보여주는 식으로 변경
          */
@@ -192,7 +204,7 @@ public class CalNodes extends Thread{
 
         Polyline[] polylines=new Polyline[resultList.size()];
         for(int i=0;i<resultList.size();i++){
-            ArrayList<LatLngAlt> list=resultList.get(i);
+            ArrayList<LatLngAlt> list=resultList.get(i).routeNodes;
             ArrayList<LatLng> polyList=new ArrayList<>();
             for(LatLngAlt node:list)
                 polyList.add(new LatLng(node.latitude, node.longitude));
@@ -220,6 +232,19 @@ public class CalNodes extends Thread{
             }
         });
 
+    }
+
+    public ArrayList<SolRoute> checkKacl(ArrayList<SolRoute> solRoutes,double kcal){
+        /**
+         * 사용자가 섭취한 칼로리를 소모할 수 있는 경로만 저장
+         * */
+        ArrayList<SolRoute> result = new ArrayList<>();
+        for(int i=0;i<solRoutes.size();i++){
+            if(solRoutes.get(i).calories>kcal){
+                result.add(solRoutes.get(i));
+            }
+        }
+        return result;
     }
 
 }

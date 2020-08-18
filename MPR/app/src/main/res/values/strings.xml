@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">MPR</string>
+    <string name="check_kcal">check kcal</string>
+    <string name="korean_food">Korean food</string>
+    <string name="susi">Susi</string>
+    <string name="spaghetti">Spaghetti</string>
+    <string name="taco">Taco</string>
+    <string name="meat_diet">Meat diet</string>
+    <string name="vegetable">Vegetable</string>
+    <string name="school_food">School food</string>
+    <string name="japanese_food">Japanese food</string>
+    <string name="chinese_food">Chinese food</string>
+    <string name="dessert">dessert</string>
+    <string name="fastfoods">fastfoods</string>
 </resources>

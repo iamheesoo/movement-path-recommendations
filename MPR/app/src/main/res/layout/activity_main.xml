@@ -14,4 +14,14 @@
         android:layout_height="match_parent"
         tools:context=".MapsActivity" />
 
+    <Button
+        android:id="@+id/calendarBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onCalendarBtnClick"
+        android:text="GET CALENDAR"
+        tools:layout_editor_absoluteX="3dp"
+        tools:layout_editor_absoluteY="8dp" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

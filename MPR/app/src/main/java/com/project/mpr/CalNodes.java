@@ -1,8 +1,5 @@
 package com.project.mpr;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.util.Log;
@@ -240,10 +237,10 @@ public class CalNodes extends Thread{
         /**
          * 사용자가 섭취한 칼로리를 소모할 수 있는 경로만 저장
          * */
-        Log.i(TAG, "times: "+times);
+
         ArrayList<SolRoute> result = new ArrayList<>();
         for(int i=0;i<solRoutes.size();i++){
-            if(solRoutes.get(i).calories>kcal ){
+            if(solRoutes.get(i).calories>kcal && solRoutes.get(i).time<=times){
                 result.add(solRoutes.get(i));
             }
         }

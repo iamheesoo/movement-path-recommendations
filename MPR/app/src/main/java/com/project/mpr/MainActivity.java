@@ -1,10 +1,12 @@
 package com.project.mpr;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,10 +38,8 @@ import java.util.LinkedList;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    public static LinkedList<LatLng> nearNodes=new LinkedList<>();
-    public static ArrayList<NodeAndDist> nodeDistarrayList = new ArrayList<>();//
-
     private GoogleMap gMap;
+    private BroadcastReceiver broadcastReceiver;
     int count_marker = 0;
     LatLng start, end;
     private final String TAG = "MainActivity";
@@ -46,8 +47,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     static int userTime;
     static Context mContext;
     Button calendarBtn;
+    double times;
 
-    double temps = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mContext=getApplicationContext();
         calendarBtn=(Button)findViewById(R.id.calendarBtn);
         checkPermission();
-
+        broadcastReceiver=new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i(TAG, "onCreate onReceive()");
+                times=intent.getDoubleExtra("times", -1);
+                Log.i(TAG, "times: "+times);
+            }
+        };
+        IntentFilter filter=new IntentFilter();
+        filter.addAction("calendar");
+        registerReceiver(broadcastReceiver, filter);
     }
 
     public void onCalendarBtnClick(View view){
@@ -67,8 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent intent=new Intent(getApplicationContext(), Calendar.class);
         startService(intent);
 
-        stopService(intent);
-        Log.i(TAG, "times "+intent.getExtras().getDouble("times"));
+//        stopService(intent);
     }
 
     // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
@@ -142,10 +152,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     /**
                      * 칼로리 선택 테스트
                      * */
+
                    Intent intent = getIntent(); // 칼로리 가져오기
                    int calorie = intent.getIntExtra("calorie",0); //set default kcal = 0
                    calnode.receive_kacl = calorie; //받아온 칼로리 설정
-                          calnode.times=temps;
+                   calnode.times=times; // 스케줄 시간 설정
                    calnode.calDist(4,start,end,gMap);
 
                     //t-map api 호출 : 출발지->도착지 경로 좌표 구함
@@ -205,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent intent = new Intent(getApplicationContext(), Check_kcal.class);
         startActivity(intent);  //intent를 넣어 실행시키게 됩니다.
     }
+
 
 
 //    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};

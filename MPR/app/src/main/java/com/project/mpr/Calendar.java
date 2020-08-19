@@ -1,8 +1,6 @@
 package com.project.mpr;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,7 +8,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,20 +35,22 @@ public class Calendar extends Service {
         cursor=getContentResolver().query(uri, EVENT_PROJECTION, selection, null, "dtstart asc");
         long startTime=0;
         if(cursor.moveToNext()){
-            Log.i(TAG,"calendar_id: "+cursor.getString(0));
-            Log.i(TAG,"title: "+cursor.getString(1));
-            Log.i(TAG,"start time: "+milliToDate(cursor.getLong(2)));
-            Log.i(TAG,"end time: "+milliToDate(cursor.getLong(3)));
+//            Log.i(TAG,"calendar_id: "+cursor.getString(0));
+//            Log.i(TAG,"title: "+cursor.getString(1));
+//            Log.i(TAG,"start time: "+milliToDate(cursor.getLong(2)));
+//            Log.i(TAG,"end time: "+milliToDate(cursor.getLong(3)));
             startTime=cursor.getLong(2);
         }
         Log.i(TAG, "current Date: "+currentDate+" eventDate: "+milliToDate(startTime));
         if(currentDate.equals(milliToDate(startTime))){
             Log.i(TAG, "today event exist");
-            calendarSec=(startTime-currentTimeMillis)/1000.0;
+            this.calendarSec=(startTime-currentTimeMillis)/1000.0;
         }
-        Log.i(TAG, calendarSec+"sec ("+calendarSec/60.0+" min)");
+        Log.i(TAG, calendarSec+"sec");
 
-//        sendBroadCast(calendarSec);
+        Intent intent1=new Intent("calendar");
+        intent1.putExtra("times", calendarSec);
+        sendBroadcast(intent1);
 
         return START_STICKY;
     }
@@ -84,9 +83,4 @@ public class Calendar extends Service {
         return sdf.format(new Date(millis));
     }
 
-    private void sendBroadCast(double times){
-        Intent intent=new Intent("calendar");
-        intent.putExtra("times", times);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
 }

@@ -1,9 +1,7 @@
 package com.project.mpr;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
-import android.text.PrecomputedText;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -32,6 +30,7 @@ public class CalNodes extends Thread{
     ArrayList<SolRoute> solRouteArrayList=new ArrayList<>();
     GetNode getNode;
     int receive_kacl=0;
+    double times = 0;
 
     public void calDist(final int num, final LatLng start, final LatLng end, final GoogleMap gMap){//목적지에서 인접한 num개의 좌표 계산
         final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -126,7 +125,7 @@ public class CalNodes extends Thread{
                     * */
                     Log.d("Cal_TEST", "----------칼로리받아옴?----------- : " +receive_kacl);
 
-                    drawRoute(checkKacl(solRoutes,receive_kacl),gMap);
+                    drawRoute(checkKcal(solRoutes,receive_kacl),gMap);
 
 
                     /**
@@ -234,17 +233,17 @@ public class CalNodes extends Thread{
 
     }
 
-    public ArrayList<SolRoute> checkKacl(ArrayList<SolRoute> solRoutes,double kcal){
+    public ArrayList<SolRoute> checkKcal(ArrayList<SolRoute> solRoutes, double kcal){
         /**
          * 사용자가 섭취한 칼로리를 소모할 수 있는 경로만 저장
          * */
+
         ArrayList<SolRoute> result = new ArrayList<>();
         for(int i=0;i<solRoutes.size();i++){
-            if(solRoutes.get(i).calories>kcal){
+            if(solRoutes.get(i).calories>kcal && solRoutes.get(i).time<=times){
                 result.add(solRoutes.get(i));
             }
         }
         return result;
     }
-
 }

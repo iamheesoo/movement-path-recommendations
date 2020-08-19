@@ -1,6 +1,8 @@
 package com.project.mpr;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -8,14 +10,18 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Calendar extends Service {
     private static final String TAG="Calendar";
+    double calendarSec=0;
 
     @Override
     public void onCreate(){ // 서비스 최초 생성될 때 호출
+        this.calendarSec=Double.MAX_VALUE;
         Log.i(TAG, "onCreate()");
     }
 
@@ -26,14 +32,26 @@ public class Calendar extends Service {
         Uri uri=Uri.parse(CONTENT_URI);
         Cursor cursor=null;
         final String[] EVENT_PROJECTION=new String[]{ "calendar_id", "title", "dtstart", "dtend"};
-        String selection="calendar_id=4 AND dtstart>"+System.currentTimeMillis();
-        cursor=getContentResolver().query(uri, EVENT_PROJECTION, selection, null, null);
+        Long currentTimeMillis=System.currentTimeMillis();
+        String currentDate=milliToDate(currentTimeMillis);
+        String selection="calendar_id=4 AND dtstart>"+currentTimeMillis;
+        cursor=getContentResolver().query(uri, EVENT_PROJECTION, selection, null, "dtstart asc");
+        long startTime=0;
         if(cursor.moveToNext()){
             Log.i(TAG,"calendar_id: "+cursor.getString(0));
             Log.i(TAG,"title: "+cursor.getString(1));
             Log.i(TAG,"start time: "+milliToDate(cursor.getLong(2)));
             Log.i(TAG,"end time: "+milliToDate(cursor.getLong(3)));
+            startTime=cursor.getLong(2);
         }
+        Log.i(TAG, "current Date: "+currentDate+" eventDate: "+milliToDate(startTime));
+        if(currentDate.equals(milliToDate(startTime))){
+            Log.i(TAG, "today event exist");
+            calendarSec=(startTime-currentTimeMillis)/1000.0;
+        }
+        Log.i(TAG, calendarSec+"sec ("+calendarSec/60.0+" min)");
+
+//        sendBroadCast(calendarSec);
 
         return START_STICKY;
     }
@@ -62,8 +80,13 @@ public class Calendar extends Service {
     }
 
     private String milliToDate(long millis){
-//        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-//        return sdf.format(new Date(millis));
-        return new Date(millis).toString();
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(new Date(millis));
+    }
+
+    private void sendBroadCast(double times){
+        Intent intent=new Intent("calendar");
+        intent.putExtra("times", times);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     static Context mContext;
     Button calendarBtn;
 
+    double temps = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,18 +65,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onCalendarBtnClick(View view){
         Log.i(TAG, "onCalendarBtnClick()");
         Intent intent=new Intent(getApplicationContext(), Calendar.class);
-//        intent.putExtra("contentResolver", (Parcelable) contentResolver);
         startService(intent);
 
+        stopService(intent);
+        Log.i(TAG, "times "+intent.getExtras().getDouble("times"));
     }
 
     // 앱을 실행하기 위해 필요한 퍼미션을 정의합니다.
     String[] REQUIRED_PERMISSIONS  = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.READ_CALENDAR};  // 외부 저장소
     private static final int PERMISSIONS_REQUEST_CODE = 100;
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION=1;
-    ContentResolver contentResolver;
-    ContentValues contentValues;
-    Uri uri;
 
     public void checkPermission(){
         Log.i(TAG, "checkPermission()");
@@ -146,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                    Intent intent = getIntent(); // 칼로리 가져오기
                    int calorie = intent.getIntExtra("calorie",0); //set default kcal = 0
                    calnode.receive_kacl = calorie; //받아온 칼로리 설정
+                          calnode.times=temps;
                    calnode.calDist(4,start,end,gMap);
 
                     //t-map api 호출 : 출발지->도착지 경로 좌표 구함

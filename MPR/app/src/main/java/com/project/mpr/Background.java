@@ -27,8 +27,8 @@ public class Background extends AsyncTask<ArrayList<LatLngAlt>, Void, ArrayList<
     @Override
     protected void onPostExecute(ArrayList<LatLngAlt> list) { // 제대로 저장되었는지 프린트하여 체크
         Log.d(TAG, "onPostExecute()");
-        GetNode g=new GetNode();
-        g.printNode(list);
+//        GetNode g=new GetNode();
+//        g.printNode(list);
     }
 
 }

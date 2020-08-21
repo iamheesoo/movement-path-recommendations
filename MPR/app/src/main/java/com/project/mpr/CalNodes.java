@@ -282,7 +282,6 @@ public class CalNodes extends Service{
         /**
          * 사용자가 섭취한 칼로리를 소모할 수 있는 경로만 저장
          * */
-
         ArrayList<SolRoute> result = new ArrayList<>();
         for(int i=0;i<solRoutes.size();i++){
             if(solRoutes.get(i).calories>kcal){//&& solRoutes.get(i).time<=times

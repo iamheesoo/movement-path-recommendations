@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -50,7 +51,7 @@ public class Calendar extends Service {
 
         Intent intent1=new Intent("calendar");
         intent1.putExtra("times", calendarSec);
-        sendBroadcast(intent1);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 
         return START_STICKY;
     }

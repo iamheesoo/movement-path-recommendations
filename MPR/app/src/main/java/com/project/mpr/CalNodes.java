@@ -1,10 +1,19 @@
 package com.project.mpr;
 
+import android.app.AlertDialog;
+import android.app.Service;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -22,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class CalNodes extends Thread{
+public class CalNodes extends Service{
     private static final String TAG="CalNodes";
     ArrayList<NodeAndDist> destList = new ArrayList<>();
     ArrayList<NodeAndDist> sourceList = new ArrayList<>();
@@ -31,6 +40,41 @@ public class CalNodes extends Thread{
     GetNode getNode;
     int receive_kacl=0;
     double times = 0;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, flags, startId);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        super.onRebind(intent);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+
+    //Context mainContext;
 
     public void calDist(final int num, final LatLng start, final LatLng end, final GoogleMap gMap){//목적지에서 인접한 num개의 좌표 계산
         final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -214,6 +258,7 @@ public class CalNodes extends Thread{
                     .width(16-3*i)
                     .clickable(true)//add clickable
             );
+            polylines[i].setTag(resultList.get(i).time+","+resultList.get(i).meter+","+resultList.get(i).calories);
         }
 
         gMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener(){
@@ -223,10 +268,10 @@ public class CalNodes extends Thread{
                 /**
                 * polyLine.getID()대신에 해당 폴리라인 리스트의 시간, 칼로리 내용으로 변경하기
                 * */
-                Log.d(TAG, "시간, 칼로리 출력: "+polyline.getId());
-                //polyline.setWidth(120);
-                //polyline.setTag(polyline.getId());
-                //polyline.setPoints(solutionList);
+
+                String[] split = polyline.getTag().toString().split(",");
+                Log.d(TAG, "시간:"+split[0]+",미터:"+split[1]+",칼로리:"+split[2]);
+                //makeAlertDialog(split);
 
             }
         });
@@ -240,10 +285,31 @@ public class CalNodes extends Thread{
 
         ArrayList<SolRoute> result = new ArrayList<>();
         for(int i=0;i<solRoutes.size();i++){
-            if(solRoutes.get(i).calories>kcal && solRoutes.get(i).time<=times){
+            if(solRoutes.get(i).calories>kcal){//&& solRoutes.get(i).time<=times
                 result.add(solRoutes.get(i));
             }
         }
         return result;
     }
+
+
+    /*public void makeAlertDialog(String[] splits){
+        AlertDialog.Builder alt_bld = new AlertDialog.Builder(mainContext);
+        alt_bld.setMessage("times: "+splits[0]+ ", meter: "+splits[1]+", kcal: "+splits[2]+"\ncheck this path?").setCancelable(
+                false).setPositiveButton("ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(mainContext, "ok", Toast.LENGTH_SHORT).show();
+                        // Action for 'Yes' Button
+                    }
+                }).setNegativeButton("no",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Action for 'NO' Button
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = alt_bld.create();
+        alert.show();
+    }*/
 }

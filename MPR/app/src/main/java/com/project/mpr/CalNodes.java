@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class CalNodes extends Service{
+public class CalNodes extends Thread{
     private static final String TAG="CalNodes";
     ArrayList<NodeAndDist> destList = new ArrayList<>();
     ArrayList<NodeAndDist> sourceList = new ArrayList<>();
@@ -40,39 +40,6 @@ public class CalNodes extends Service{
     GetNode getNode;
     int receive_kacl=0;
     double times = 0;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        return super.onUnbind(intent);
-    }
-
-    @Override
-    public void onRebind(Intent intent) {
-        super.onRebind(intent);
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
 
     //Context mainContext;
 
@@ -86,6 +53,7 @@ public class CalNodes extends Service{
         final Location endLocation = new Location("endPoint");
         endLocation.setLatitude(end.latitude);
         endLocation.setLongitude(end.longitude);
+
         final Location destLocation = new Location("distPoint");
 
         ValueEventListener postListener = new ValueEventListener() {
@@ -114,9 +82,6 @@ public class CalNodes extends Service{
                     Collections.sort(sourceList);
                     Collections.sort(destList);
 
-                    //printList(sourceList);//
-                    //printList(destList);//
-
                     getNumNode(num,sourceList,destList,start,end,gMap);
 
                 }catch(InterruptedException e){
@@ -142,9 +107,6 @@ public class CalNodes extends Service{
                             //리스트에서 node검색
                             FirebaseDB mpr1 = snapshot.child(destArr.get(i).node).getValue(FirebaseDB.class);
                             FirebaseDB mpr2 = snapshot.child(sourcrArr.get(i).node).getValue(FirebaseDB.class);
-                    /*Log.d("firebase", "---FIREBASE--- Node id : "+arr.get(i).node);
-                    Log.d("firebase", "---FIREBASE--- latitude : "+mpr.getLatitude().doubleValue());
-                    Log.d("firebase", "---FIREBASE--- longtitude : "+mpr.getLongtitude().doubleValue());*/
                             //파이어베이스에서 위,경도 찾아 리스트에 저장
                             solutionList.add(new LatLng(mpr1.getLatitude().doubleValue(),mpr1.getLongtitude().doubleValue()));
                             solutionList.add(new LatLng(mpr2.getLatitude().doubleValue(),mpr2.getLongtitude().doubleValue()));
@@ -214,23 +176,6 @@ public class CalNodes extends Service{
         }
     }
 
-    /*public ArrayList<LatLng> startThread(final int num, final LatLng end){
-        final Thread thread=new Thread() {
-            public void run() {
-                calDist(num,end);
-            }
-        };
-        thread.start();
-        try{
-            thread.join(); //쓰레드 종료 기다리기
-            return getSolutionList();
-
-        }catch(InterruptedException e){
-            e.printStackTrace();
-        }
-        return getSolutionList();
-    }*/
-
     public ArrayList<LatLng> getSolutionList() {
         return solutionList;
     }
@@ -258,6 +203,9 @@ public class CalNodes extends Service{
                     .width(16-3*i)
                     .clickable(true)//add clickable
             );
+            /**
+             * ++0821
+              */
             polylines[i].setTag(resultList.get(i).time+","+resultList.get(i).meter+","+resultList.get(i).calories);
         }
 
@@ -269,9 +217,12 @@ public class CalNodes extends Service{
                 * polyLine.getID()대신에 해당 폴리라인 리스트의 시간, 칼로리 내용으로 변경하기
                 * */
 
+                /**
+                 * ++0821
+                 */
                 String[] split = polyline.getTag().toString().split(",");
                 Log.d(TAG, "시간:"+split[0]+",미터:"+split[1]+",칼로리:"+split[2]);
-                //makeAlertDialog(split);
+                makeAlertDialog(split);
 
             }
         });
@@ -292,13 +243,13 @@ public class CalNodes extends Service{
     }
 
 
-    /*public void makeAlertDialog(String[] splits){
-        AlertDialog.Builder alt_bld = new AlertDialog.Builder(mainContext);
+    public void makeAlertDialog(String[] splits){
+        AlertDialog.Builder alt_bld = new AlertDialog.Builder(MainActivity.mContext);
         alt_bld.setMessage("times: "+splits[0]+ ", meter: "+splits[1]+", kcal: "+splits[2]+"\ncheck this path?").setCancelable(
                 false).setPositiveButton("ok",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Toast.makeText(mainContext, "ok", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(this, "ok", Toast.LENGTH_SHORT).show();
                         // Action for 'Yes' Button
                     }
                 }).setNegativeButton("no",
@@ -310,5 +261,5 @@ public class CalNodes extends Service{
                 });
         AlertDialog alert = alt_bld.create();
         alert.show();
-    }*/
+    }
 }

@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     // 경유지 받아오기
                    CalNodes calnode = new CalNodes();
-                   //calnode.mainContext = getApplicationContext();
                     /**
                      * 칼로리 선택 테스트
                      * */

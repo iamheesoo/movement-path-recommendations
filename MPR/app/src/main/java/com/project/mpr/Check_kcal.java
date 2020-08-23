@@ -18,7 +18,7 @@ public class Check_kcal extends AppCompatActivity {
 
         switch (view.getId()){
             case R.id.but1 :
-                intent.putExtra("calorie",3);
+                intent.putExtra("calorie",0);
                 break;
             case R.id.but2 :
                 intent.putExtra("calorie",6);
@@ -47,10 +47,5 @@ public class Check_kcal extends AppCompatActivity {
         }
         startActivity(intent);
     }
-/*    public void checkRice(View view) {//한식 선택
-        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-        intent.putExtra("calorie",3);
-        startActivity(intent);
-    }*/
 
 }

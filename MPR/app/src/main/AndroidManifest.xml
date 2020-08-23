@@ -34,6 +34,8 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".Check_kcal"/>
         <service android:name=".Calendar"/>
+        <service android:name=".Calculate"/>
+        <service android:name=".Route"/>
     </application>
 
 </manifest>

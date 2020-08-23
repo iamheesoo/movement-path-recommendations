@@ -1,12 +1,12 @@
 package com.project.mpr;
 
 public class NodeAndDist implements Comparable<NodeAndDist>{
-    public String node;
-    public Double dist;
+    public int index;
+    public double dist;
 
     public NodeAndDist(){}
-    public NodeAndDist(String node, Double dist){
-        this.node=node;
+    public NodeAndDist(int i, double dist){
+        this.index=i;
         this.dist=dist;
     }
 

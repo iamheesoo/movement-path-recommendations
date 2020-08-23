@@ -1,7 +1,13 @@
 package com.project.mpr;
 
+import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.IBinder;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -11,86 +17,114 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class GetNode extends Thread{
-    private static String TAG="GetNode";
+public class Route extends Service {
+    private static String TAG="Route";
     ArrayList<ArrayList<LatLngAlt>> resultList; // 모든 경로를 포함한 리스트
     ArrayList<LatLngAlt> list; // 경로 노드 리스트
     ArrayList<String> combList; // 조합 리스트
     String jsonData;
     String passList;
-    Double kcal;
-    ArrayList<SolRoute> solutionList = new ArrayList<>();
+    double kcal;
+    ArrayList<SolRoute> solutionList;
     int totalTime, totalDistance; // 경로 소요 시간
 
-    ArrayList<LatLng> nodeList=new ArrayList<>();
+    ArrayList<LatLng> nodeList;
 
-    public ArrayList<SolRoute> getNode(final LatLng start, final LatLng end) {
-        /**
-         * v 이제 combList를 받아서
-         * v 경유지 포함한 url 만들 수 있게 메소드 수정 후 리턴 받아서
-         * 경로 max 5니까 totalTime과 userTime 체크해서 초과하는 것은 거르고
-         * v drawRoute()로 맵에 띄우기
-         *
-         * problem
-         * v 같은 json을 리턴받는 경우
-         * v 리턴 경로가 없는 경우 (FileNotFoundException)
-         * 원래 최단경로도 보여주면 좋을 듯
-         */
-//        CalNodes getnode = new CalNodes(); // 경유지 가져오기
-//        nodeList=getnode.calDist(2,end);
+    @Override
+    public void onCreate() {
+        Log.i(TAG, "onCreate()");
+        super.onCreate();
+    }
 
-        combList=getCombList(4); // num 수정
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, "onStartCommand()");
+
+        solutionList = new ArrayList<>();
         resultList=new ArrayList<>();
+        nodeList=new ArrayList<>();
 
-        // temp
-        /*nodeList=new ArrayList<>();
-        nodeList.add(new LatLng(36.368880, 127.341553)); // 인문대학 위 교차로
-        nodeList.add(new LatLng(36.369278, 127.345920)); // 중앙도서관 앞 교차로
-        Log.i(TAG, nodeList.size()+"");*/
+        final LatLng start=(LatLng)intent.getExtras().get("start");
+        final LatLng end=(LatLng)intent.getExtras().get("end");
+        int num=intent.getExtras().getInt("num");
+        nodeList=(ArrayList<LatLng>) intent.getSerializableExtra("nodeList");
+        combList=getCombList(num); // num 수정
 
         Thread thread=new Thread() {
-                public void run() {
-                HttpConnect h = new HttpConnect();
-                for(int i=0;i<combList.size();i++){ // 조합 수 만큼 경유지 포함한 경로 요청
-                    list=new ArrayList<>();
-                    passList="";
-                    String[] stopoverIdx=combList.get(i).split(",");
-                    for (String idx:stopoverIdx) { // passList 생성
-                        LatLng node=nodeList.get(Integer.parseInt(idx));
-                        if(!passList.equals("")) passList+=",";
-                        passList+=node.longitude+","+node.latitude;
-                    }
-                    String url = h.getDirectionURL(start, end);
-                    url+=passList;
-                    jsonData = h.httpConnection(url);
-                    if(!jsonData.equals("")) jsonRead(jsonData);
-                    Log.d(TAG, "Node Size: "+list.size());
-                    if(list.size()!=0) {
-                        resultList.add(list);//지워라
-                        GetAltitude ga=new GetAltitude(); // 고도 받아오기
-                        ga.setAltitude(list);
-
-                        Calories calories=new Calories(); // 칼로리 계산
-                        kcal=calories.getCalories(list, totalDistance, totalTime);
-                        solutionList.add(new SolRoute(list,totalDistance,totalTime,kcal));//경로 정보 저장
-                    }
-
+        public void run() {
+            HttpConnect h = new HttpConnect();
+            for(int i=0;i<combList.size();i++){ // 조합 수 만큼 경유지 포함한 경로 요청
+                list=new ArrayList<>();
+                passList="";
+                String[] stopoverIdx=combList.get(i).split(",");
+                for (String idx:stopoverIdx) { // passList 생성
+                    LatLng node=nodeList.get(Integer.parseInt(idx));
+                    if(!passList.equals("")) passList+=",";
+                    passList+=node.longitude+","+node.latitude;
                 }
+                String url = h.getDirectionURL(start, end);
+                url+=passList;
+                jsonData = h.httpConnection(url);
+                if(!jsonData.equals("")) jsonRead(jsonData);
+                Log.d(TAG, "Node Size: "+list.size());
+                if(list.size()!=0) {
+                    resultList.add(list);//지워라
+                    GetAltitude ga=new GetAltitude(); // 고도 받아오기
+                    ga.setAltitude(list);
+
+                    Calories calories=new Calories(); // 칼로리 계산
+                    kcal=calories.getCalories(list, totalDistance, totalTime);
+                    solutionList.add(new SolRoute(list,totalDistance,totalTime,kcal));//경로 정보 저장
+                }
+
             }
-        };
+        }
+    };
         thread.start();
 
         try{
             thread.join(); // 쓰레드 종료 후 list 리턴
             Log.d(TAG, "resultList size: "+resultList.size());
+            Log.d(TAG, "solutionList size: "+solutionList.size());
+
+            //solutionList를 Main한테 전달
+            Intent intent1=new Intent("route");
+            intent1.putExtra("solutionList", solutionList);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 
         }catch(InterruptedException e){
             e.printStackTrace();
         }
-        //return resultList;
-        return solutionList;
+
+
+
+        return super.onStartCommand(intent, flags, startId);
     }
 
+    @Override
+    public void onDestroy() {
+        Log.i(TAG, "onDestroy()");
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.i(TAG, "onUnbind()");
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        Log.i(TAG, "onRebind()");
+        super.onRebind(intent);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.i(TAG, "onBind()");
+        return null;
+    }
     public void jsonRead(String json){ // 파싱
         Log.i(TAG, "jsonRead()");
         try {
@@ -104,11 +138,6 @@ public class GetNode extends Thread{
                     totalTime=properties.getInt("totalTime");
                     totalDistance=properties.getInt("totalDistance");
                     Log.i(TAG, "totalTime: "+totalTime+" totalDistance: "+totalDistance);
-//                    Log.i(TAG, ""+MainActivity.userTime);
-//                    if(totalTime>MainActivity.userTime){ // userTime보다 크면 경로에 안넣음
-//                        Log.i(TAG, "totalTime>userTime");
-//                        return;
-//                    }
                 }
                 // 노드 파싱
                 JSONObject geometry=jObject.getJSONObject("geometry");
@@ -127,13 +156,6 @@ public class GetNode extends Thread{
             e.printStackTrace();
         }
     }
-
-    public void printNode(ArrayList<LatLngAlt> list){ // 노드들 리스트 값 출력
-        Log.d(TAG, "printNode()");
-        for(LatLngAlt point:list)
-            Log.d(TAG, point.latitude+", "+point.longitude+", "+point.altitude+"\n");
-    }
-
     public ArrayList<String> getCombList(int num){ // 경유지 인덱스 조합 구하기
         ArrayList<String> combList=new ArrayList<>();
         boolean[] visit;

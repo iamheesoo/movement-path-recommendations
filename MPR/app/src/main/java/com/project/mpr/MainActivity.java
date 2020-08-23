@@ -3,13 +3,18 @@ package com.project.mpr;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -19,22 +24,31 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap gMap;
-    private BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver calendarReceiver, calculateReceiver, routeReceiver;
     int count_marker = 0;
     LatLng start, end;
     private final String TAG = "MainActivity";
     private View mLayout;
     static Context mContext;
     double times;
+    double calorie;
+
+    ArrayList<LatLng> nodeList;
+    ArrayList<SolRoute> solutionList;
+
 
 
     @Override
@@ -48,9 +62,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         checkPermission();
 
-        Intent intent=new Intent(getApplicationContext(), Calendar.class);
-        startService(intent);
-        broadcastReceiver=new BroadcastReceiver() {
+        calendarReceiver =new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.i(TAG, "onReceive()");
@@ -58,6 +70,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.i(TAG, "times: "+times);
             }
         };
+        calculateReceiver =new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i(TAG, "onReceive()");
+                nodeList= (ArrayList<LatLng>) intent.getSerializableExtra("nodeList");
+                Log.i(TAG, "nodeList size: "+nodeList.size());
+
+                // 경유지 그리기
+                drawCross(nodeList);
+
+                Intent intentRoute=new Intent(getApplicationContext(), Route.class);
+                intentRoute.putExtra("start", start);
+                intentRoute.putExtra("end", end);
+                intentRoute.putExtra("num", 4);
+                intentRoute.putExtra("nodeList", nodeList);
+                startService(intentRoute);
+            }
+        };
+        routeReceiver =new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i(TAG, "onReceive()");
+                solutionList=(ArrayList<SolRoute>)intent.getSerializableExtra("solutionList");
+                Log.i(TAG, "solutionList size: "+solutionList.size());
+
+                drawRoute(checkKcal(solutionList, calorie));
+            }
+        };
+
+//        progressActivity =new ProgressActivity();
     }
 
 
@@ -95,22 +137,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 ActivityCompat.requestPermissions( this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE);
             }
         }
+
     }
+    public void registerReceiver(){
+        // 캘린더 가져오기
+        Intent intent=new Intent(getApplicationContext(), Calendar.class);
+        startService(intent);
+
+        // 리시버 등록
+        IntentFilter filter=new IntentFilter();
+        filter.addAction("calendar");
+        registerReceiver(calendarReceiver, filter);
+        IntentFilter filter1=new IntentFilter();
+        filter1.addAction("calculate");
+        registerReceiver(calculateReceiver, filter1);
+        IntentFilter filter2=new IntentFilter();
+        filter2.addAction("route");
+        registerReceiver(routeReceiver, filter2);
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
 
         LatLng school = new LatLng(36.362978, 127.344807); //충남대학교 정문
-//        gMap.moveCamera(CameraUpdateFactory.newLatLng(school));
-//        gMap.animateCamera(CameraUpdateFactory.zoomTo(14));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(school,15));
-//        Log.d("!", school.latitude+" "+school.longitude);
         //핀 찍기
         gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(final LatLng point) {
-                //
-
+                Log.i(TAG, "count_marker "+count_marker);
                 if(count_marker==0){//출발지 좌표
                     start=point;
                 }
@@ -118,57 +174,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     end=point;
                 }
                 if(count_marker==2){
-                    /**
-                    * count_marker >=2 이상일 경우,
-                     * 아래의 else가 실행되어 계속 마커가 찍힘
-                     * * */
-
                     count_marker++;
-                    Log.d("____TEST____", "두 번 이상 클릭하면 안돼요~"+count_marker);
-                    //Log.d(TAG, start.latitude+" "+ end.latitude);
 
-                    // 경유지 받아오기
-                   CalNodes calnode = new CalNodes();
-                   //calnode.mainContext = getApplicationContext();
-                    /**
-                     * 칼로리 선택 테스트
-                     * */
+                    Intent intent = getIntent(); // 칼로리 가져오기
+                    calorie = intent.getIntExtra("calorie",0); //set default kcal = 0
+                    Log.i(TAG, "calorie "+calorie);
 
-                   IntentFilter filter=new IntentFilter(); // 스케줄 가져오기
-                   filter.addAction("calendar");
-                   registerReceiver(broadcastReceiver, filter);
+                    registerReceiver();
 
 
-                   Intent intent = getIntent(); // 칼로리 가져오기
-                   int calorie = intent.getIntExtra("calorie",0); //set default kcal = 0
-                   calnode.receive_kacl = calorie; //받아온 칼로리 설정
-                   calnode.times=times; // 스케줄 시간 설정
-                   calnode.calDist(4,start,end,gMap);
+                    // 경유지 뽑기
+                    Intent intentCal=new Intent(getApplicationContext(), Calculate.class);
+                    intentCal.putExtra("start", start);
+                    intentCal.putExtra("end", end);
+                    intentCal.putExtra("num", 4);
+                    startService(intentCal);
 
-                    //t-map api 호출 : 출발지->도착지 경로 좌표 구함
-                    /*GetNode g=new GetNode();
-                    ArrayList<ArrayList<LatLngAlt>> resultList=g.getNode(start, end); // 경로 노드 받아오기 (고도 포함)
-                    drawRoute(resultList); // 경로 그리기*/
-
-                    //중간 좌표 계산하기
-                    CalClosedNodes c = new CalClosedNodes();
-                    LatLng midXY = c.cal_middle_latlng(start,end);
-
-                    //중간 좌표 찍기
-                    /*MarkerOptions midM = new MarkerOptions();
-                    midM.title("중간 값 좌표");
-                    midM.snippet("위도 : "+midXY.latitude+ "경도 : "+midXY.longitude);
-                    midM.position(midXY);
-                    gMap.addMarker(midM);*/
-
-
-                   // c.cal_five_latlng(end,nearNodes); //DB수정
-                    //c.orderNodes(2,nearNodes);//2개 경유지
-                    //c.printlinkedList(nearNodes);
-                    //c.printList(c.resultList);
-                    //2개 경유지
-                    //System.out.println("리스트야 제대로 들어갔니?"+c.orderNodes(2,nearNodes).size());
-                    //c.printList(nearNodes);//내용 확인
 
 
                 }else{
@@ -183,9 +204,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mOptions.position(new LatLng(latitude, longitude));
                     // 마커(핀) 추가
                     gMap.addMarker(mOptions);
-
-//                    gMap.moveCamera(CameraUpdateFactory.newLatLng(point));//마커 위치로 카메라 이동
-
                     count_marker++;
                     Log.d("LOG", "위도 : " + latitude+",경도 : " + longitude + ",터치횟수 :" + count_marker);
 
@@ -196,6 +214,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+
+    public ArrayList<SolRoute> checkKcal(ArrayList<SolRoute> solRoutes, double kcal){
+        /**
+         * 사용자가 섭취한 칼로리를 소모할 수 있는 경로만 저장
+         * */
+        ArrayList<SolRoute> result = new ArrayList<>();
+        for(int i=0;i<solRoutes.size();i++){
+            if(solRoutes.get(i).calories>=kcal && solRoutes.get(i).time<=times){
+                result.add(solRoutes.get(i));
+            }
+        }
+        return result;
+    }
+
     public void check_kcal(View view) {//섭취 칼로리 페이지로 이동
         //Toast.makeText(getApplicationContext(), "시작 버튼이 눌렸어요",
         //Toast.LENGTH_LONG).show();
@@ -204,46 +236,99 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK, Color.MAGENTA, Color.DKGRAY, Color.CYAN, Color.LTGRAY, Color.WHITE};
+        public void drawRoute(final ArrayList<SolRoute> resultList){ // 맵에 경로 그리기
+        /**
+         * problem
+         * ArrayList<ArrayList<LatLngAlt>>
+         * 경로가 overlap되는 부분이 있으면 width가 작은 것이 가려짐
+         * 맵에는 경로 하나만 띄울 수 있도록 함, 밑에 경로 리스트 중 하나를 선택 시 그 경로를 보여주는 식으로 변경
+         */
+        Log.d(TAG,"drawRoute()");
 
-//    int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK};
-//    public void drawRoute(ArrayList<ArrayList<LatLngAlt>> resultList){ // 맵에 경로 그리기
-//        /**
-//         * problem
-//         * 경로가 overlap되는 부분이 있으면 width가 작은 것이 가려짐
-//         * 맵에는 경로 하나만 띄울 수 있도록 함, 밑에 경로 리스트 중 하나를 선택 시 그 경로를 보여주는 식으로 변경
-//         */
-//        Log.d(TAG,"drawRoute()");
-//        Polyline[] polylines=new Polyline[resultList.size()];
-//
-//        for(int i=0;i<resultList.size();i++){
-//            ArrayList<LatLngAlt> list=resultList.get(i);
-//            for(int j=0;j<list.size()-1;j++){
-//                LatLngAlt src=list.get(j);
-//                LatLngAlt dest=list.get(j+1);
-//                polylines[i]=gMap.addPolyline(
-//                        new PolylineOptions().add(
-//                                new LatLng(src.latitude, src.longitude),
-//                                new LatLng(dest.latitude, dest.longitude)
-//                        ).width(10-2*i).color(polyColor[i])/*.geodesic(true)*/
-//                );
-////                polylines[i].setZIndex((float) Math.pow(100,i));
-//
-//            }
-//        }
-//
-//    }
+        Polyline[] polylines=new Polyline[resultList.size()];
+        for(int i=0;i<resultList.size();i++){
+            ArrayList<LatLngAlt> list=resultList.get(i).routeNodes;
+            ArrayList<LatLng> polyList=new ArrayList<>();
+            for(LatLngAlt node:list)
+                polyList.add(new LatLng(node.latitude, node.longitude));
+
+            polylines[i]=gMap.addPolyline(new PolylineOptions()
+                    .addAll(polyList)
+                    .color(polyColor[i])
+                    .width(16-3*i)
+                    .clickable(true)//add clickable
+            );
+            polylines[i].setTag(resultList.get(i).time+","+resultList.get(i).meter+","+resultList.get(i).calories);
+
+        }
+
+        gMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener(){
+            public void onPolylineClick(Polyline polyline) {
+                int strokeColor = polyline.getColor() ^ 0x0000CC00;
+                polyline.setColor(strokeColor);//클릭 시 색상 변경
+                /**
+                * polyLine.getID()대신에 해당 폴리라인 리스트의 시간, 칼로리 내용으로 변경하기
+                * */
+
+                String[] split = polyline.getTag().toString().split(",");
+                Log.d(TAG, "시간:"+split[0]+",미터:"+split[1]+",칼로리:"+split[2]);
+                makeAlertDialog(split);
+            }
+        });
+    }
+
+    public void drawCross(ArrayList<LatLng> nodeList) {
+        MarkerOptions node = new MarkerOptions();
+        node.title("node 좌표");
+        node.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+        for (int k = 0; k < nodeList.size(); k++) {
+            node.snippet("위도 : " + nodeList.get(k).latitude + "경도 : " + nodeList.get(k).longitude);
+            node.position(nodeList.get(k));
+            gMap.addMarker(node);
+        }
+    }
+
+
+    public void makeAlertDialog(String[] splits){
+        AlertDialog.Builder alt_bld = new AlertDialog.Builder(this);
+        alt_bld.setTitle("경로 정보");
+        alt_bld.setMessage(splits[0]+" sec\n"+splits[1]+" m\n"+splits[2]+" kcal\ncheck this path?").setCancelable(
+                false).setNegativeButton("no",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(getApplicationContext(),"no", Toast.LENGTH_SHORT).show();
+                        // Action for 'NO' Button
+                        dialog.cancel();
+                    }
+                }).setPositiveButton("ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(getApplicationContext(),"ok", Toast.LENGTH_SHORT).show();
+                        // Action for 'Yes' Button
+                    }
+                });
+        AlertDialog alert = alt_bld.create();
+        alert.show();
+    }
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume()");
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("calendar"));
+        count_marker=0;
+        LocalBroadcastManager.getInstance(this).registerReceiver(calendarReceiver, new IntentFilter("calendar"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(calculateReceiver, new IntentFilter("calculate"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(routeReceiver, new IntentFilter("route"));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "onPause()");
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(calendarReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(calculateReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(routeReceiver);
     }
+
 }
 

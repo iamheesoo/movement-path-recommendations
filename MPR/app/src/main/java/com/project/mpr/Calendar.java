@@ -48,6 +48,7 @@ public class Calendar extends Service {
             this.calendarSec=(startTime-currentTimeMillis)/1000.0;
         }
         Log.i(TAG, calendarSec+"sec");
+        stopService(intent);
 
         Intent intent1=new Intent("calendar");
         intent1.putExtra("times", calendarSec);

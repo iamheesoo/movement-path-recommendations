@@ -1,6 +1,7 @@
 package com.project.mpr;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -54,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<SolRoute> solutionList;
 
 
+    private ProgressDialog waitDialog;
+    Handler mHandler;
+    Runnable runnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +106,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 drawRoute(checkKcal(solutionList, calorie)); //맵에 경로 그리기
 
+                mHandler.removeCallbacks(runnable);
+                waitDialog.cancel();
+                if(solutionList.size()!=0) {
+                    drawRoute(checkKcal(solutionList, calorie));
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "추천 경로 없음", Toast.LENGTH_LONG).show();
+                }
             }
         };
 
-//        progressActivity =new ProgressActivity();
+        waitDialog=new ProgressDialog(this);
+        waitDialog.setMessage("loading...");
+        waitDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+        mHandler=new Handler(Looper.getMainLooper());
+        runnable=new Runnable() {
+            @Override
+            public void run() {
+                waitDialog.show();
+
+            }
+        };
+
     }
 
 
@@ -119,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         int hasReadCalendarPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
 
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED && hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED
-        && hasReadCalendarPermission == PackageManager.PERMISSION_GRANTED ) {
+                && hasReadCalendarPermission == PackageManager.PERMISSION_GRANTED ) {
             // 2. 이미 퍼미션을 가지고 있다면
             // ( 안드로이드 6.0 이하 버전은 런타임 퍼미션이 필요없기 때문에 이미 허용된 걸로 인식합니다.)
         }
@@ -130,12 +155,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Snackbar.make(mLayout, "이 앱을 실행하려면 위치, 캘린더 접근 권한이 필요합니다.", Snackbar.LENGTH_INDEFINITE)
                         .setAction("확인", new View.OnClickListener() {
 
-                    @Override
-                    public void onClick(View view) {
-                        // 3-3. 사용자에게 퍼미션 요청을 합니다. 요청 결과는 onRequestPermissionResult에서 수신됩니다.
-                        ActivityCompat.requestPermissions( MainActivity.this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE);
-                    }
-                }).show();
+                            @Override
+                            public void onClick(View view) {
+                                // 3-3. 사용자에게 퍼미션 요청을 합니다. 요청 결과는 onRequestPermissionResult에서 수신됩니다.
+                                ActivityCompat.requestPermissions( MainActivity.this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+                            }
+                        }).show();
             } else {
                 // 4-1. 사용자가 퍼미션 거부를 한 적이 없는 경우에는 퍼미션 요청을 바로 합니다.
                 // 요청 결과는 onRequestPermissionResult에서 수신됩니다.
@@ -187,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     registerReceiver();
 
+                    mHandler.postDelayed(runnable,0);
 
                     // 경유지 뽑기
                     Intent intentCal=new Intent(getApplicationContext(), Calculate.class);
@@ -242,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK, Color.MAGENTA, Color.DKGRAY, Color.CYAN, Color.LTGRAY, Color.WHITE};
-        public void drawRoute(final ArrayList<SolRoute> resultList){ // 맵에 경로 그리기
+    public void drawRoute(final ArrayList<SolRoute> resultList){ // 맵에 경로 그리기
         /**
          * problem
          * ArrayList<ArrayList<LatLngAlt>>
@@ -284,8 +310,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 int strokeColor = polyline.getColor() ^ 0x0000CC00;
                 polyline.setColor(strokeColor);//클릭 시 색상 변경
                 /**
-                * polyLine.getID()대신에 해당 폴리라인 리스트의 시간, 칼로리 내용으로 변경하기
-                * */
+                 * polyLine.getID()대신에 해당 폴리라인 리스트의 시간, 칼로리 내용으로 변경하기
+                 * */
 
                 String[] split = polyline.getTag().toString().split(",");
                 Log.d(TAG, "시간:"+split[0]+",미터:"+split[1]+",칼로리:"+split[2]);

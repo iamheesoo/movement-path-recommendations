@@ -11,7 +11,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -95,7 +99,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 solutionList=(ArrayList<SolRoute>)intent.getSerializableExtra("solutionList");
                 Log.i(TAG, "solutionList size: "+solutionList.size());
 
-                drawRoute(checkKcal(solutionList, calorie));
+                drawRoute(checkKcal(solutionList, calorie)); //맵에 경로 그리기
+
             }
         };
 
@@ -246,6 +251,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          */
         Log.d(TAG,"drawRoute()");
 
+            LinearLayout linearLayout;
+            linearLayout=(LinearLayout)findViewById(R.id.routeList);
+            linearLayout.setVisibility(View.VISIBLE);
+
         Polyline[] polylines=new Polyline[resultList.size()];
         for(int i=0;i<resultList.size();i++){
             ArrayList<LatLngAlt> list=resultList.get(i).routeNodes;
@@ -260,6 +269,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .clickable(true)//add clickable
             );
             polylines[i].setTag(resultList.get(i).time+","+resultList.get(i).meter+","+resultList.get(i).calories);
+
+            TextView tv = new TextView(this);  // 새로 추가할 textView 생성
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            tv.setText("경로"+(i+1)+"   "+resultList.get(i).time+", "+resultList.get(i).meter+", "+resultList.get(i).calories+" \n");  // textView에 내용 추가
+            tv.setLayoutParams(lp);  // textView layout 설정
+            tv.setGravity(Gravity.CENTER);  // textView layout 설정
+            linearLayout.addView(tv); // 기존 linearLayout에 textView 추가
 
         }
 
@@ -276,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 makeAlertDialog(split);
             }
         });
+
     }
 
     public void drawCross(ArrayList<LatLng> nodeList) {
@@ -290,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    public void makeAlertDialog(String[] splits){
+    public void makeAlertDialog(String[] splits){//경로 클릭 시 경로 선택 화면
         AlertDialog.Builder alt_bld = new AlertDialog.Builder(this);
         alt_bld.setTitle("경로 정보");
         alt_bld.setMessage(splits[0]+" sec\n"+splits[1]+" m\n"+splits[2]+" kcal\ncheck this path?").setCancelable(

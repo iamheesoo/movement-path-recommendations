@@ -12,9 +12,11 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MapsActivity" />
+        tools:context=".MapsActivity"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="-101dp" />
 
-        <Button
+    <Button
         android:id="@+id/but_kcal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

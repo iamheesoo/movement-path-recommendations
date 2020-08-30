@@ -121,14 +121,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,1);
                     lp.gravity=Gravity.CENTER;
-                    int c=1;
+                    int c=0;
                     for(SolRoute item : listforDraw){
                         TextView tv = new TextView(mContext);  // 새로 추가할 textView 생성
-                        tv.setText("경로"+(c++)+" \n"+item.time+" \n"+item.meter+" \n"+item.calories+" \n");  // textView에 내용 추가
+                        tv.setId(c);
+                        tv.setText("경로 "+(++c)+" \n"+item.time+" 초 \n"+item.meter+" m \n"+item.calories+" kcal \n");  // textView에 내용 추가
                         tv.setTextSize(15);
                         tv.setTextColor(Color.WHITE);
                         tv.setLayoutParams(lp);  // textView layout 설정
                         tv.setGravity(Gravity.CENTER);  // textView layout 설정
+                        tv.setPadding(20, 0, 20, 0);
+                        tv.setOnClickListener(new View.OnClickListener(){
+                            @Override
+                            public void onClick(View v) {
+                                drawOneRoute(v.getId()+"");
+                            }
+
+                        });
                         linearLayout.addView(tv); // 기존 linearLayout에 textView 추가
                     }
 
@@ -282,14 +291,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void check_kcal(View view) {//섭취 칼로리 페이지로 이동
-        //Toast.makeText(getApplicationContext(), "시작 버튼이 눌렸어요",
-        //Toast.LENGTH_LONG).show();
         Intent intent = new Intent(getApplicationContext(), Check_kcal.class);
         startActivity(intent);  //intent를 넣어 실행시키게 됩니다.
     }
 
 
     int[] polyColor={Color.RED, Color.BLUE, Color.YELLOW, Color.GREEN, Color.BLACK, Color.MAGENTA, Color.DKGRAY, Color.CYAN, Color.LTGRAY, Color.WHITE};
+    Polyline[] polylines;
     public void drawRoute(final ArrayList<SolRoute> resultList){ // 맵에 경로 그리기
         /**
          * problem
@@ -299,11 +307,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          */
         Log.d(TAG,"drawRoute()");
 
-/*            LinearLayout linearLayout;
-            linearLayout=(LinearLayout)findViewById(R.id.routeList);
-            linearLayout.setVisibility(View.VISIBLE);*/
-
-        Polyline[] polylines=new Polyline[resultList.size()];
+        polylines=new Polyline[resultList.size()];
         for(int i=0;i<resultList.size();i++){
             ArrayList<LatLngAlt> list=resultList.get(i).routeNodes;
             ArrayList<LatLng> polyList=new ArrayList<>();
@@ -317,16 +321,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .clickable(true)//add clickable
             );
             polylines[i].setTag(resultList.get(i).time+","+resultList.get(i).meter+","+resultList.get(i).calories);
-
-/*            TextView tv = new TextView(this);  // 새로 추가할 textView 생성
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,1);
-            lp.gravity=Gravity.CENTER;
-            tv.setText("경로"+(i+1)+" \n"+resultList.get(i).time+" \n"+resultList.get(i).meter+", "+resultList.get(i).calories+" \n");  // textView에 내용 추가
-            tv.setTextSize(15);
-            tv.setTextColor(Color.WHITE);
-            tv.setLayoutParams(lp);  // textView layout 설정
-            tv.setGravity(Gravity.CENTER);  // textView layout 설정
-            linearLayout.addView(tv); // 기존 linearLayout에 textView 추가*/
 
         }
 
@@ -344,6 +338,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+    }
+
+    public void drawOneRoute(String strIdx){
+        int thisRoute=Integer.parseInt(strIdx);
+        if(polylines!=null && polylines.length!=0){
+            for(int i=0;i<polylines.length;i++){
+                if(i!=thisRoute) polylines[i].setVisible(false);
+                else polylines[i].setVisible(true);
+            }
+        }
     }
 
     public void drawCross(ArrayList<LatLng> nodeList) {

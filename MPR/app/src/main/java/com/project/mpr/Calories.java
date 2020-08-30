@@ -28,7 +28,7 @@ public class Calories {
                 verticalVO2+=1.8*v*slope;
         }
         double totalVO2=(horizontalVO2+verticalVO2)*weight/1000;
-//        Log.i(TAG, "totalVO2: "+totalVO2);
+        Log.i(TAG, "totalVO2: "+totalVO2);
         double kcal=totalVO2*5.0*m;
         Log.i(TAG, "kcal: "+kcal);
         return kcal;

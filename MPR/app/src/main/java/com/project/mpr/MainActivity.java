@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -104,11 +105,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 solutionList=(ArrayList<SolRoute>)intent.getSerializableExtra("solutionList");
                 Log.i(TAG, "solutionList size: "+solutionList.size());
 
-
                 mHandler.removeCallbacks(runnable);
                 waitDialog.cancel();
                 if(solutionList.size()!=0) {
-                    drawRoute(checkKcal(solutionList, calorie));
+                    ArrayList<SolRoute> listforDraw = checkKcal(solutionList, calorie);
+                    drawRoute(listforDraw);
+
+                    HorizontalScrollView horizontalScrollView;
+                    horizontalScrollView=(HorizontalScrollView)findViewById(R.id.routeList);
+                    horizontalScrollView.setVisibility(View.VISIBLE);
+
+                   LinearLayout linearLayout;
+                    linearLayout=(LinearLayout)findViewById(R.id.linear1);
+
+
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,1);
+                    lp.gravity=Gravity.CENTER;
+                    int c=1;
+                    for(SolRoute item : listforDraw){
+                        TextView tv = new TextView(mContext);  // 새로 추가할 textView 생성
+                        tv.setText("경로"+(c++)+" \n"+item.time+" \n"+item.meter+" \n"+item.calories+" \n");  // textView에 내용 추가
+                        tv.setTextSize(15);
+                        tv.setTextColor(Color.WHITE);
+                        tv.setLayoutParams(lp);  // textView layout 설정
+                        tv.setGravity(Gravity.CENTER);  // textView layout 설정
+                        linearLayout.addView(tv); // 기존 linearLayout에 textView 추가
+                    }
+
+
                 }
                 else{
                     Toast.makeText(getApplicationContext(), "추천 경로 없음", Toast.LENGTH_LONG).show();
@@ -275,9 +299,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
          */
         Log.d(TAG,"drawRoute()");
 
-            LinearLayout linearLayout;
+/*            LinearLayout linearLayout;
             linearLayout=(LinearLayout)findViewById(R.id.routeList);
-            linearLayout.setVisibility(View.VISIBLE);
+            linearLayout.setVisibility(View.VISIBLE);*/
 
         Polyline[] polylines=new Polyline[resultList.size()];
         for(int i=0;i<resultList.size();i++){
@@ -294,12 +318,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             );
             polylines[i].setTag(resultList.get(i).time+","+resultList.get(i).meter+","+resultList.get(i).calories);
 
-            TextView tv = new TextView(this);  // 새로 추가할 textView 생성
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            tv.setText("경로"+(i+1)+"   "+resultList.get(i).time+", "+resultList.get(i).meter+", "+resultList.get(i).calories+" \n");  // textView에 내용 추가
+/*            TextView tv = new TextView(this);  // 새로 추가할 textView 생성
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,1);
+            lp.gravity=Gravity.CENTER;
+            tv.setText("경로"+(i+1)+" \n"+resultList.get(i).time+" \n"+resultList.get(i).meter+", "+resultList.get(i).calories+" \n");  // textView에 내용 추가
+            tv.setTextSize(15);
+            tv.setTextColor(Color.WHITE);
             tv.setLayoutParams(lp);  // textView layout 설정
             tv.setGravity(Gravity.CENTER);  // textView layout 설정
-            linearLayout.addView(tv); // 기존 linearLayout에 textView 추가
+            linearLayout.addView(tv); // 기존 linearLayout에 textView 추가*/
 
         }
 

@@ -36,7 +36,7 @@
         />
 
 
-    <LinearLayout
+    <HorizontalScrollView
         android:id="@+id/routeList"
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -44,6 +44,7 @@
         android:orientation="horizontal"
         android:visibility="invisible"
         android:fadeScrollbars="false"
+        android:weightSum="6"
 
         android:background="@color/cardview_dark_background"
 
@@ -55,7 +56,12 @@
         app:layout_constraintVertical_bias="1.0"
         >
 
+        <LinearLayout android:id="@+id/linear1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+        </LinearLayout>
 
-    </LinearLayout>
+    </HorizontalScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

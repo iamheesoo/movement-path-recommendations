@@ -104,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 solutionList=(ArrayList<SolRoute>)intent.getSerializableExtra("solutionList");
                 Log.i(TAG, "solutionList size: "+solutionList.size());
 
-                drawRoute(checkKcal(solutionList, calorie)); //맵에 경로 그리기
 
                 mHandler.removeCallbacks(runnable);
                 waitDialog.cancel();
@@ -126,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void run() {
                 waitDialog.show();
-
             }
         };
 

@@ -14,8 +14,8 @@ import java.util.HashSet;
 
 public class HttpConnect {//google-map : 고도 api, t-map : 도보 경로 api
     private static final String TAG="HttpConnect";
-    String MY_GOOGLE_API="AIzaSyDbtoRX-sfO3iCcIdxyApzYFTa2oCU9gcI";
-    String MY_TMAP_API="l7xxa0fc69cead9948e4ae68b19059e7a937";
+    String MY_GOOGLE_API="FILL_YOUR_KEY";
+    String MY_TMAP_API="FILL_YOUR_KEY";
     HashSet<String> hashSet=new HashSet<>();
 
     public String getAltitudeURL(LatLng point){
